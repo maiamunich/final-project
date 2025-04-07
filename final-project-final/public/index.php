@@ -1,80 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Art Gallery</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
-</head>
-<body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/artworks">Gallery</a></li>
-                <li><a href="/about">About</a></li>
-            </ul>
-        </nav>
-    </header>
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-    <main>
-        <h1>Art Gallery</h1>
-        
-        <div class="filters">
-            <form id="yearFilter">
-                <label for="year">Filter by Year:</label>
-                <select name="year" id="year">
-                    <option value="">All Years</option>
-                    <?php
-                    $years = array_unique(array_column($artworks, 'year'));
-                    sort($years);
-                    foreach ($years as $year) {
-                        echo "<option value='$year'>$year</option>";
-                    }
-                    ?>
-                </select>
-                <button type="submit">Filter</button>
-            </form>
+// First define the URI variables
+$uri = $_SERVER["REQUEST_URI"] ?? '/';
+$uri = strtok($uri, '?');
+$uriArray = explode("/", $uri);
 
-            <form id="classFilter">
-                <label for="class">Filter by Class:</label>
-                <select name="class" id="class">
-                    <option value="">All Classes</option>
-                    <?php
-                    $classes = array_unique(array_column($artworks, 'class_name'));
-                    $classes = array_filter($classes);
-                    sort($classes);
-                    foreach ($classes as $class) {
-                        echo "<option value='$class'>$class</option>";
-                    }
-                    ?>
-                </select>
-                <button type="submit">Filter</button>
-            </form>
-        </div>
+// Use dirname to get the correct path
+$basePath = dirname(__DIR__);
 
-        <div class="gallery-grid">
-            <?php foreach ($artworks as $artwork): ?>
-                <div class="artwork-card">
-                    <img src="<?= htmlspecialchars($artwork['image_url']) ?>" alt="<?= htmlspecialchars($artwork['title']) ?>">
-                    <div class="artwork-info">
-                        <h2><?= htmlspecialchars($artwork['title']) ?></h2>
-                        <p class="year"><?= htmlspecialchars($artwork['year']) ?></p>
-                        <?php if ($artwork['class_name']): ?>
-                            <p class="class"><?= htmlspecialchars($artwork['class_name']) ?></p>
-                        <?php endif; ?>
-                        <p class="medium"><?= htmlspecialchars($artwork['medium']) ?></p>
-                        <a href="/artworks/<?= $artwork['id'] ?>" class="view-details">View Details</a>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    </main>
+// Update require paths
+require_once $basePath . "/app/models/Model.php";
+require_once $basePath . "/app/models/Artwork.php";
+require_once $basePath . "/app/controllers/MainController.php";
+require_once $basePath . "/app/controllers/ArtworkController.php";
 
-    <footer>
-        <p>&copy; <?= date('Y') ?> Your Name. All rights reserved.</p>
-    </footer>
+use app\controllers\MainController;
+use app\controllers\ArtworkController;
 
-    <script src="/assets/js/main.js"></script>
-</body>
-</html> 
+//set env variables
+$env = parse_ini_file('../.env');
+define('DBNAME', $env['DBNAME']);
+define('DBHOST', $env['DBHOST']);
+define('DBUSER', $env['DBUSER']);
+define('DBPASS', $env['DBPASS']);
+
+$routeMatched = false;
+
+// Homepage route
+if ($uri === '/') {
+    $controller = new MainController();
+    $controller->homepage();
+    $routeMatched = true;
+    exit();
+}
+
+// Artworks routes
+if ($uri === '/artworks') {
+    $controller = new ArtworkController();
+    $controller->index();
+    $routeMatched = true;
+    exit();
+}
+
+if (preg_match('/^\/artworks\/(\d+)$/', $uri, $matches)) {
+    $controller = new ArtworkController();
+    $controller->show($matches[1]);
+    $routeMatched = true;
+    exit();
+}
+
+if (preg_match('/^\/artworks\/year\/(\d+)$/', $uri, $matches)) {
+    $controller = new ArtworkController();
+    $controller->getArtworksByYear($matches[1]);
+    $routeMatched = true;
+    exit();
+}
+
+if (preg_match('/^\/artworks\/class\/(.+)$/', $uri, $matches)) {
+    $controller = new ArtworkController();
+    $controller->getArtworksByClass(urldecode($matches[1]));
+    $routeMatched = true;
+    exit();
+}
+
+// Only show 404 if no routes matched
+if (!$routeMatched) {
+    include __DIR__ . '/assets/views/404.php';
+    exit();
+} 

@@ -1,0 +1,90 @@
+/* Custom styles for the homepage */
+.hero-section {
+    padding: 4rem 0;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 3rem;
+}
+
+.hero-section h1 {
+    font-size: 3rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.hero-section .lead {
+    font-size: 1.5rem;
+    color: #7f8c8d;
+}
+
+.about-section, .medium-section, .statement-section {
+    padding: 2rem;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.about-section img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.about-section h2, .medium-section h2, .statement-section h2 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #3498db;
+}
+
+.about-section p, .medium-section p, .statement-section p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #34495e;
+}
+
+/* Navbar customization */
+.navbar {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: #2c3e50 !important;
+}
+
+.nav-link {
+    color: #2c3e50 !important;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    color: #3498db !important;
+}
+
+/* Footer customization */
+footer {
+    background-color: #2c3e50 !important;
+    color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 0;
+    }
+
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+
+    .about-section, .medium-section, .statement-section {
+        padding: 1.5rem;
+    }
+
+    .about-section img {
+        margin-bottom: 1.5rem;
+    }
+} 
