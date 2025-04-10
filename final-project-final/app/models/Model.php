@@ -3,6 +3,11 @@
 namespace app\models;
 
 abstract class Model {
+    protected $db;
+
+    public function __construct() {
+        $this->db = $this->connect();
+    }
 
     public function findAll() {
         $query = "select * from $this->table";
@@ -10,14 +15,26 @@ abstract class Model {
     }
 
     private function connect() {
-        $string = "mysql:hostname=" . DBHOST . ";dbname=" . DBNAME;
-        $con = new \PDO($string, DBUSER, DBPASS);
-        return $con;
+        $env = parse_ini_file(__DIR__ . '/../../.env');
+        if (!$env) {
+            throw new \Exception("Failed to load .env file");
+        }
+
+        // Split host and port if port is specified
+        $hostParts = explode(':', $env['DBHOST']);
+        $host = $hostParts[0];
+        $port = isset($hostParts[1]) ? ';port=' . $hostParts[1] : '';
+
+        $dsn = "mysql:host=" . $host . $port . ";dbname=" . $env['DBNAME'];
+        try {
+            return new \PDO($dsn, $env['DBUSER'], $env['DBPASS']);
+        } catch (\PDOException $e) {
+            throw new \Exception("Database connection failed: " . $e->getMessage());
+        }
     }
 
     public function query($query, $data = []) {
-        $con = $this->connect();
-        $stm = $con->prepare($query);
+        $stm = $this->db->prepare($query);
         $check = $stm->execute($data);
         if ($check) {
             //return as an associated array

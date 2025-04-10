@@ -19,13 +19,6 @@ require_once $basePath . "/app/controllers/ArtworkController.php";
 use app\controllers\MainController;
 use app\controllers\ArtworkController;
 
-//set env variables
-$env = parse_ini_file('../.env');
-define('DBNAME', $env['DBNAME']);
-define('DBHOST', $env['DBHOST']);
-define('DBUSER', $env['DBUSER']);
-define('DBPASS', $env['DBPASS']);
-
 $routeMatched = false;
 
 // Homepage route
@@ -53,20 +46,21 @@ if (preg_match('/^\/artworks\/(\d+)$/', $uri, $matches)) {
 
 if (preg_match('/^\/artworks\/year\/(\d+)$/', $uri, $matches)) {
     $controller = new ArtworkController();
-    $controller->getArtworksByYear($matches[1]);
+    $controller->byYear($matches[1]);
     $routeMatched = true;
     exit();
 }
 
-if (preg_match('/^\/artworks\/class\/(.+)$/', $uri, $matches)) {
+if (preg_match('/^\/artworks\/class\/([^\/]+)$/', $uri, $matches)) {
     $controller = new ArtworkController();
-    $controller->getArtworksByClass(urldecode($matches[1]));
+    $controller->byClass(urldecode($matches[1]));
     $routeMatched = true;
     exit();
 }
 
-// Only show 404 if no routes matched
+// If no route matched, show 404
 if (!$routeMatched) {
-    include __DIR__ . '/assets/views/404.php';
+    http_response_code(404);
+    include $basePath . "/public/assets/views/404.html";
     exit();
 } 
