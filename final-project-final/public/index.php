@@ -13,6 +13,7 @@ $basePath = dirname(__DIR__);
 // Update require paths
 require_once $basePath . "/app/models/Model.php";
 require_once $basePath . "/app/models/Artwork.php";
+require_once $basePath . "/app/views/View.php";
 require_once $basePath . "/app/controllers/MainController.php";
 require_once $basePath . "/app/controllers/ArtworkController.php";
 

@@ -22,4 +22,4 @@ CREATE TABLE IF NOT EXISTS artworks (
 INSERT INTO artworks (title, year, class_name, image_url, description, medium, dimensions, price) VALUES
 ('Sunset Over Mountains', 2023, 'ART-101', 'images/sunset-mountains.jpg', 'An acrylic painting of a mountain sunset', 'Acrylic on Canvas', '24x36 inches', 250.00),
 ('Abstract Thoughts', 2022, 'ART-201', 'images/abstract.jpg', 'Mixed media abstract piece', 'Mixed Media', '18x24 inches', 175.00),
-('City Lights', 2023, NULL, 'images/city-lights.jpg', 'Digital illustration of city nightscape', 'Digital Art', '16x20 inches', 150.00); 
+('City Lights', 2023, NULL, 'images/city-lights.jpg', 'Digital illustration of city nightscape', 'Digital Art', '16x20 inches', 150.00); x

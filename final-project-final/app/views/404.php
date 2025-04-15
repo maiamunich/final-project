@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artwork Gallery</title>
+    <title>404 - Page Not Found</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/assets/css/gallery.css" rel="stylesheet">
+    <link href="/assets/css/main.css" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -20,38 +20,22 @@
                         <a class="nav-link" href="/">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/artworks">Gallery</a>
+                        <a class="nav-link" href="/artworks">Gallery</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <h1>Artwork Gallery</h1>
-        
-        <div class="year-navigation mb-4">
-            <h2>Browse by Year</h2>
-            <div class="year-buttons">
-                {year_buttons}
-            </div>
-        </div>
-
-        <div class="class-navigation mb-4">
-            <h2>Browse by Class</h2>
-            <div class="class-buttons">
-                {class_buttons}
-            </div>
-        </div>
-
-        <div class="artworks-grid">
-            {artwork_cards}
-        </div>
+    <div class="container mt-5 text-center">
+        <h1>404 - Page Not Found</h1>
+        <p class="lead">The page you are looking for could not be found.</p>
+        <a href="/" class="btn btn-primary">Return to Home</a>
     </div>
 
     <footer class="mt-5 py-3 bg-light">
         <div class="container text-center">
-            <p>&copy; {current_year} Art Portfolio. All rights reserved.</p>
+            <p>&copy; <?= date('Y') ?> Art Portfolio. All rights reserved.</p>
         </div>
     </footer>
 

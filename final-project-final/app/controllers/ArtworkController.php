@@ -3,33 +3,37 @@
 namespace app\controllers;
 
 use app\models\Artwork;
+use app\views\View;
 
 class ArtworkController {
-    private $artworkModel;
+    private $artwork;
+    private $view;
 
     public function __construct() {
-        $this->artworkModel = new Artwork();
+        $this->artwork = new Artwork();
+        $this->view = new View();
     }
 
     public function index() {
-        $artworks = $this->artworkModel->getAllArtworks();
-        include __DIR__ . '/../views/artworks/index.php';
+        $artworks = $this->artwork->all();
+        $this->view->render('artworks/gallery', ['artworks' => $artworks]);
     }
 
     public function show($id) {
-        $artwork = $this->artworkModel->getArtworkById($id);
+        $artwork = $this->artwork->find($id);
         if (!$artwork) {
-            include __DIR__ . '/../views/404.php';
+            http_response_code(404);
+            $this->view->render('errors/404');
             return;
         }
-        include __DIR__ . '/../views/artworks/show.php';
+        $this->view->render('artworks/show', ['artwork' => $artwork]);
     }
 
     public function create() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = $this->validateArtworkData($_POST);
             if ($data) {
-                $this->artworkModel->createArtwork($data);
+                $this->artwork->createArtwork($data);
                 header('Location: /artworks');
                 exit;
             }
@@ -41,12 +45,12 @@ class ArtworkController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = $this->validateArtworkData($_POST);
             if ($data) {
-                $this->artworkModel->updateArtwork($id, $data);
+                $this->artwork->updateArtwork($id, $data);
                 header('Location: /artworks/' . $id);
                 exit;
             }
         }
-        $artwork = $this->artworkModel->getArtworkById($id);
+        $artwork = $this->artwork->getArtworkById($id);
         if (!$artwork) {
             include __DIR__ . '/../views/404.php';
             return;
@@ -55,19 +59,91 @@ class ArtworkController {
     }
 
     public function delete($id) {
-        $this->artworkModel->deleteArtwork($id);
+        $this->artwork->deleteArtwork($id);
         header('Location: /artworks');
         exit;
     }
 
     public function getArtworksByYear($year) {
-        $artworks = $this->artworkModel->getArtworksByYear($year);
-        include __DIR__ . '/../views/artworks/year.php';
+        $artworks = $this->artwork->getByYear($year);
+        $data = [
+            'year' => $year,
+            'artworks' => $artworks
+        ];
+        
+        $this->view->render('artworks/year', $data);
     }
 
     public function getArtworksByClass($class) {
-        $artworks = $this->artworkModel->getArtworksByClass($class);
-        include __DIR__ . '/../views/artworks/class.php';
+        $artworks = $this->artwork->getByClass($class);
+        $data = [
+            'class' => $class,
+            'artworks' => $artworks
+        ];
+        
+        $this->view->render('artworks/class', $data);
+    }
+
+    public function gallery() {
+        $artworks = $this->artwork->getAll();
+        $years = $this->artwork->getYears();
+        $classes = $this->artwork->getClasses();
+
+        $data = [
+            'years' => $years,
+            'classes' => $classes,
+            'artworks' => $artworks
+        ];
+
+        $this->view->render('artworks/gallery', $data);
+    }
+
+    public function byYear($year) {
+        $artworks = $this->artwork->where('year', $year);
+        $this->view->render('artworks/gallery', [
+            'artworks' => $artworks,
+            'currentYear' => $year
+        ]);
+    }
+
+    public function byClass($class) {
+        $artworks = $this->artwork->where('class', $class);
+        $this->view->render('artworks/gallery', [
+            'artworks' => $artworks,
+            'currentClass' => $class
+        ]);
+    }
+
+    private function generateArtworkCard($artwork) {
+        $class = htmlspecialchars($artwork['class_name'] ?? '');
+        $imageUrl = htmlspecialchars($artwork['image_url']);
+        $title = htmlspecialchars($artwork['title']);
+        $medium = htmlspecialchars($artwork['medium']);
+        $etsyUrl = htmlspecialchars($artwork['etsy_url'] ?? '');
+
+        $card = "<div class='artwork-card' data-year='{$artwork['year']}' data-class='$class'>";
+        $card .= "<div class='artwork-image'>";
+        $card .= "<img src='$imageUrl' alt='$title'>";
+        $card .= "</div>";
+        $card .= "<div class='artwork-info'>";
+        $card .= "<h3>$title</h3>";
+        $card .= "<p class='year'>{$artwork['year']}</p>";
+        
+        if ($class) {
+            $card .= "<p class='class'>$class</p>";
+        }
+        
+        $card .= "<p class='medium'>$medium</p>";
+        $card .= "<div class='artwork-actions'>";
+        $card .= "<a href='/artworks/{$artwork['id']}' class='btn btn-primary'>View Details</a>";
+        
+        if ($etsyUrl) {
+            $card .= "<a href='$etsyUrl' class='btn btn-success etsy-link' target='_blank'>View on Etsy</a>";
+        }
+        
+        $card .= "</div></div></div>";
+        
+        return $card;
     }
 
     private function validateArtworkData($data) {

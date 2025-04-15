@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artwork Gallery</title>
+    <title>Artworks from <?= $class ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/assets/css/gallery.css" rel="stylesheet">
 </head>
@@ -28,30 +28,34 @@
     </nav>
 
     <div class="container mt-4">
-        <h1>Artwork Gallery</h1>
+        <h1>Artworks from <?= $class ?></h1>
+        <a href="/artworks" class="btn btn-secondary mb-4">Back to Gallery</a>
         
-        <div class="year-navigation mb-4">
-            <h2>Browse by Year</h2>
-            <div class="year-buttons">
-                {year_buttons}
-            </div>
-        </div>
-
-        <div class="class-navigation mb-4">
-            <h2>Browse by Class</h2>
-            <div class="class-buttons">
-                {class_buttons}
-            </div>
-        </div>
-
         <div class="artworks-grid">
-            {artwork_cards}
+            <?php foreach ($artworks as $artwork): ?>
+                <div class="artwork-card">
+                    <div class="artwork-image">
+                        <img src="<?= htmlspecialchars($artwork['image_url']) ?>" alt="<?= htmlspecialchars($artwork['title']) ?>">
+                    </div>
+                    <div class="artwork-info">
+                        <h3><?= htmlspecialchars($artwork['title']) ?></h3>
+                        <p class="year"><?= htmlspecialchars($artwork['year']) ?></p>
+                        <p class="medium"><?= htmlspecialchars($artwork['medium']) ?></p>
+                        <div class="artwork-actions">
+                            <a href="/artworks/<?= $artwork['id'] ?>" class="btn btn-primary">View Details</a>
+                            <?php if (!empty($artwork['etsy_url'])): ?>
+                                <a href="<?= htmlspecialchars($artwork['etsy_url']) ?>" class="btn btn-success etsy-link" target="_blank">View on Etsy</a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
         </div>
     </div>
 
     <footer class="mt-5 py-3 bg-light">
         <div class="container text-center">
-            <p>&copy; {current_year} Art Portfolio. All rights reserved.</p>
+            <p>&copy; <?= date('Y') ?> Art Portfolio. All rights reserved.</p>
         </div>
     </footer>
 

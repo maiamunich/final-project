@@ -2,27 +2,44 @@
 
 namespace app\models;
 
+use PDO;
+use PDOException;
+
 class Artwork extends Model {
     protected $table = 'artworks';
 
-    public function getAllArtworks() {
-        return $this->query("SELECT * FROM {$this->table} ORDER BY year DESC, title ASC");
+    public function __construct() {
+        parent::__construct();
     }
 
-    public function getArtworksByYear($year) {
-        $sql = "SELECT * FROM {$this->table} WHERE year = ? ORDER BY title ASC";
+    public function getAll() {
+        return $this->all();
+    }
+
+    public function getById($id) {
+        return $this->find($id);
+    }
+
+    public function getByYear($year) {
+        $sql = "SELECT * FROM {$this->table} WHERE year = ? ORDER BY created_at DESC";
         return $this->query($sql, [$year]);
     }
 
-    public function getArtworksByClass($class) {
-        $sql = "SELECT * FROM {$this->table} WHERE class_name = ? ORDER BY year DESC, title ASC";
+    public function getByClass($class) {
+        $sql = "SELECT * FROM {$this->table} WHERE class = ? ORDER BY year DESC, created_at DESC";
         return $this->query($sql, [$class]);
     }
 
-    public function getArtworkById($id) {
-        $sql = "SELECT * FROM {$this->table} WHERE id = ?";
-        $result = $this->query($sql, [$id]);
-        return $result[0] ?? null;
+    public function getYears() {
+        $sql = "SELECT DISTINCT year FROM {$this->table} ORDER BY year DESC";
+        $result = $this->query($sql);
+        return $result->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    public function getClasses() {
+        $sql = "SELECT DISTINCT class FROM {$this->table} WHERE class IS NOT NULL ORDER BY class ASC";
+        $result = $this->query($sql);
+        return $result->fetchAll(\PDO::FETCH_COLUMN);
     }
 
     public function createArtwork($data) {
@@ -30,8 +47,9 @@ class Artwork extends Model {
         $values = array_values($data);
         $placeholders = str_repeat('?,', count($fields) - 1) . '?';
         
-        $sql = "INSERT INTO {$this->table} (" . implode(',', $fields) . ") VALUES ($placeholders)";
-        return $this->query($sql, $values);
+        $sql = "INSERT INTO artworks (" . implode(',', $fields) . ") VALUES ($placeholders)";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($values);
     }
 
     public function updateArtwork($id, $data) {
@@ -40,13 +58,20 @@ class Artwork extends Model {
         $values[] = $id;
         
         $setClause = implode('=?,', $fields) . '=?';
-        $sql = "UPDATE {$this->table} SET $setClause WHERE id = ?";
+        $sql = "UPDATE artworks SET $setClause WHERE id = ?";
         
-        return $this->query($sql, $values);
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($values);
     }
 
     public function deleteArtwork($id) {
-        $sql = "DELETE FROM {$this->table} WHERE id = ?";
-        return $this->query($sql, [$id]);
+        $sql = "DELETE FROM artworks WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$id]);
+    }
+
+    public function where($column, $value) {
+        $sql = "SELECT * FROM {$this->table} WHERE {$column} = ?";
+        return $this->query($sql, [$value])->fetchAll();
     }
 } 
