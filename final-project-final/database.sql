@@ -1,6 +1,6 @@
 -- Create the database
-CREATE DATABASE IF NOT EXISTS art_gallery;
-USE art_gallery;
+CREATE DATABASE IF NOT EXISTS art_portfolio;
+USE art_portfolio;
 
 -- Create artworks table
 CREATE TABLE IF NOT EXISTS artworks (
@@ -16,10 +16,10 @@ CREATE TABLE IF NOT EXISTS artworks (
     etsy_url VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insert sample data
 INSERT INTO artworks (title, year, class_name, image_url, description, medium, dimensions, price) VALUES
-('Sunset Over Mountains', 2023, 'ART-101', 'images/sunset-mountains.jpg', 'An acrylic painting of a mountain sunset', 'Acrylic on Canvas', '24x36 inches', 250.00),
-('Abstract Thoughts', 2022, 'ART-201', 'images/abstract.jpg', 'Mixed media abstract piece', 'Mixed Media', '18x24 inches', 175.00),
-('City Lights', 2023, NULL, 'images/city-lights.jpg', 'Digital illustration of city nightscape', 'Digital Art', '16x20 inches', 150.00); x
+('Camping in the Mountains', 2025, 'VART-2545', '/assets/images/camping.JPG', 'An painting with layers of acrylic paint making it look glossy. Its a painting of a tent with a fire and mountains. It is based of a class project to paint a place youve never been to before. Mine is based of a dream I reocurringly have about a tent in the middle of nowhere. ', 'Acrylic on Canvas', '11x14 inches', 50.00),
+('Shattered Thoughts', 2025, 'VART-2545', '/assets/images/Shattered-Thoughts.JPG', 'Mixed media abstract piece', 'Mixed Media', '18x24 inches', 175.00),
+('Licks of color', 2025, 'VART-2545', '/assets/images/Licks.JPG', 'Mixed media abstract piece with a splash of color', 'Mixed Media', '16x20 inches', 150.00);

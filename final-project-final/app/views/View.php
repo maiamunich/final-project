@@ -27,12 +27,7 @@ class View {
         // Get the contents of the buffer and clean it
         $content = ob_get_clean();
         
-        // Replace placeholders with actual data
-        foreach ($data as $key => $value) {
-            $content = str_replace('{' . $key . '}', $value, $content);
-        }
-        
-        // Output the final content
+        // Output the rendered content
         echo $content;
     }
 } 
