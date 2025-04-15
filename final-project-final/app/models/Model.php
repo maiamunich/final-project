@@ -14,7 +14,7 @@ class Model {
             // MAMP default settings
             $host = 'localhost';
             $port = '8889';  // MAMP MySQL port
-            $dbname = getenv('DB_NAME');
+            $dbname = 'art_portfolio';  // Make sure this matches your database name
             $user = 'root';
             $pass = 'root';
             $socket = '/Applications/MAMP/tmp/mysql/mysql.sock';  // MAMP MySQL socket
@@ -33,7 +33,7 @@ class Model {
         } catch (PDOException $e) {
             // Log the error but don't expose details to the user
             error_log("Database Connection Error: " . $e->getMessage());
-            throw new \Exception("Database connection failed. Please check your configuration.");
+            throw new \Exception("Database connection failed: " . $e->getMessage());
         }
     }
 
@@ -43,20 +43,20 @@ class Model {
             $stmt->execute($params);
             return $stmt;
         } catch (PDOException $e) {
-            error_log("Query Error: " . $e->getMessage());
-            throw new \Exception("Database query failed.");
+            error_log("Query Error: " . $e->getMessage() . " SQL: " . $sql);
+            throw new \Exception("Database query failed: " . $e->getMessage());
         }
     }
 
     public function find($id) {
         $sql = "SELECT * FROM {$this->table} WHERE id = ?";
         $result = $this->query($sql, [$id]);
-        return $result->fetch(PDO::FETCH_ASSOC) ?? null;
+        return $result->fetch();
     }
 
     public function all() {
         $sql = "SELECT * FROM {$this->table}";
-        return $this->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        return $this->query($sql)->fetchAll();
     }
 
     public function create($data) {
