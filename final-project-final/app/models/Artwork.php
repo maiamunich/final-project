@@ -6,7 +6,7 @@ use PDO;
 use PDOException;
 
 class Artwork extends Model {
-    protected $table = 'artworks';
+    protected $table = 'products';
 
     public function __construct() {
         parent::__construct();
@@ -47,7 +47,7 @@ class Artwork extends Model {
         $values = array_values($data);
         $placeholders = str_repeat('?,', count($fields) - 1) . '?';
         
-        $sql = "INSERT INTO artworks (" . implode(',', $fields) . ") VALUES ($placeholders)";
+        $sql = "INSERT INTO products (" . implode(',', $fields) . ") VALUES ($placeholders)";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute($values);
     }
@@ -58,14 +58,14 @@ class Artwork extends Model {
         $values[] = $id;
         
         $setClause = implode('=?,', $fields) . '=?';
-        $sql = "UPDATE artworks SET $setClause WHERE id = ?";
+        $sql = "UPDATE products SET $setClause WHERE id = ?";
         
         $stmt = $this->db->prepare($sql);
         return $stmt->execute($values);
     }
 
     public function deleteArtwork($id) {
-        $sql = "DELETE FROM artworks WHERE id = ?";
+        $sql = "DELETE FROM products WHERE id = ?";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$id]);
     }
