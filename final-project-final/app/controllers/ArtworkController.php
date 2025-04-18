@@ -32,188 +32,137 @@ class ArtworkController {
     public function create() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = $this->validateArtworkData($_POST);
-            if ($data) {
-                $this->artwork->createArtwork($data);
-                header('Location: /artworks');
+            $result = $this->artwork->createArtwork($data);
+            
+            if ($result['success']) {
+                header('Location: /artworks/' . $result['id']);
                 exit;
+            } else {
+                $this->view->render('artworks/create', [
+                    'errors' => $result['errors'],
+                    'old' => $_POST
+                ]);
+                return;
             }
         }
-        include __DIR__ . '/../views/artworks/create.php';
+        $this->view->render('artworks/create');
     }
 
     public function update($id) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = $this->validateArtworkData($_POST);
-            if ($data) {
-                $this->artwork->updateArtwork($id, $data);
+            $result = $this->artwork->updateArtwork($id, $data);
+            
+            if ($result['success']) {
                 header('Location: /artworks/' . $id);
                 exit;
+            } else {
+                $this->view->render('artworks/edit', [
+                    'errors' => $result['errors'],
+                    'artwork' => array_merge(['id' => $id], $_POST)
+                ]);
+                return;
             }
         }
-        $artwork = $this->artwork->getArtworkById($id);
+        
+        $artwork = $this->artwork->find($id);
         if (!$artwork) {
-            include __DIR__ . '/../views/404.php';
+            http_response_code(404);
+            $this->view->render('errors/404');
             return;
         }
-        include __DIR__ . '/../views/artworks/edit.php';
+        
+        $this->view->render('artworks/edit', ['artwork' => $artwork]);
     }
 
     public function delete($id) {
-        $this->artwork->deleteArtwork($id);
-        header('Location: /artworks');
-        exit;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $success = $this->artwork->delete($id);
+            if ($success) {
+                header('Location: /artworks');
+                exit;
+            } else {
+                http_response_code(500);
+                $this->view->render('errors/500');
+                return;
+            }
+        }
+        http_response_code(405);
+        $this->view->render('errors/405');
     }
 
     public function getArtworksByClass($class) {
         $artworks = $this->artwork->getByClass($class);
-        $data = [
+        $this->view->render('artworks/class', [
             'class' => $class,
             'artworks' => $artworks
-        ];
-        
-        $this->view->render('artworks/class', $data);
+        ]);
     }
 
     public function gallery() {
-        $artworks = $this->artwork->getAll();
-        $classes = $this->artwork->getClasses();
-
-        $data = [
+        $artworks = $this->artwork->all();
+        $classes = $this->artwork->getUniqueClasses();
+        
+        $this->view->render('artworks/gallery', [
             'classes' => $classes,
             'artworks' => $artworks
-        ];
-
-        $this->view->render('artworks/gallery', $data);
+        ]);
     }
 
     public function byClass($class) {
-        $artworks = $this->artwork->where('class_name', $class);
+        $artworks = $this->artwork->getByClass($class);
         $this->view->render('artworks/gallery', [
             'artworks' => $artworks,
             'currentClass' => $class
         ]);
     }
 
-    /**
-     * API endpoint to get artworks and classes as JSON.
-     */
     public function getArtworksApi() {
         header('Content-Type: application/json');
         try {
             $artworks = $this->artwork->all();
-            $classes = $this->artwork->getUniqueClasses(); // Assuming you have a method to get unique classes
+            $classes = $this->artwork->getUniqueClasses();
 
             echo json_encode([
-                'artworks' => $artworks,
-                'classes' => $classes
+                'success' => true,
+                'data' => [
+                    'artworks' => $artworks,
+                    'classes' => $classes
+                ]
             ]);
         } catch (\Exception $e) {
             http_response_code(500);
-            echo json_encode(['error' => 'Failed to fetch artworks: ' . $e->getMessage()]);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Failed to fetch artworks: ' . $e->getMessage()
+            ]);
         }
     }
 
-    /**
-     * API endpoint to get a single artwork by ID as JSON.
-     * @param int $id Artwork ID
-     */
     public function getArtworkApi($id) {
         header('Content-Type: application/json');
         try {
             $artwork = $this->artwork->find($id);
-            if ($artwork) {
-                echo json_encode($artwork);
-            } else {
+            if (!$artwork) {
                 http_response_code(404);
-                echo json_encode(['error' => 'Artwork not found']);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Artwork not found'
+                ]);
+                return;
             }
+
+            echo json_encode([
+                'success' => true,
+                'data' => $artwork
+            ]);
         } catch (\Exception $e) {
             http_response_code(500);
-            echo json_encode(['error' => 'Failed to fetch artwork: ' . $e->getMessage()]);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Failed to fetch artwork: ' . $e->getMessage()
+            ]);
         }
-    }
-
-    /**
-     * API endpoint to update an artwork by ID.
-     * @param int $id Artwork ID
-     */
-    public function updateArtworkApi($id) {
-        header('Content-Type: application/json');
-        $inputData = json_decode(file_get_contents('php://input'), true);
-
-        if (!$inputData) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Invalid input data']);
-            return;
-        }
-
-        $validatedData = $this->validateArtworkData($inputData);
-
-        if (!$validatedData) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Validation failed. Ensure title and image_url are provided.']);
-            return;
-        }
-
-        try {
-            $success = $this->artwork->updateArtwork($id, $validatedData);
-            if ($success) {
-                echo json_encode(['message' => 'Artwork updated successfully', 'id' => $id]);
-            } else {
-                http_response_code(500);
-                echo json_encode(['error' => 'Failed to update artwork in database']);
-            }
-        } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => 'Server error during update: ' . $e->getMessage()]);
-        }
-    }
-
-    /**
-     * API endpoint to get artworks by class name as JSON.
-     * @param string $class Class name
-     */
-    public function getArtworksByClassApi($class) {
-        header('Content-Type: application/json');
-        try {
-            // Use the existing model method that fetches by class name
-            $artworks = $this->artwork->where('class_name', $class);
-            echo json_encode($artworks);
-        } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => 'Failed to fetch artworks by class: ' . $e->getMessage()]);
-        }
-    }
-
-    private function generateArtworkCard($artwork) {
-        $class = htmlspecialchars($artwork['class_name'] ?? '');
-        $imageUrl = htmlspecialchars($artwork['image_url']);
-        $title = htmlspecialchars($artwork['title']);
-        $medium = htmlspecialchars($artwork['medium']);
-        $etsyUrl = htmlspecialchars($artwork['etsy_url'] ?? '');
-
-        $card = "<div class='artwork-card' data-class='$class'>";
-        $card .= "<div class='artwork-image'>";
-        $card .= "<img src='$imageUrl' alt='$title'>";
-        $card .= "</div>";
-        $card .= "<div class='artwork-info'>";
-        $card .= "<h3>$title</h3>";
-        
-        if ($class) {
-            $card .= "<p class='class'>$class</p>";
-        }
-        
-        $card .= "<p class='medium'>$medium</p>";
-        $card .= "<div class='artwork-actions'>";
-        $card .= "<a href='/artworks/{$artwork['id']}' class='btn btn-primary'>View Details</a>";
-        
-        if ($etsyUrl) {
-            $card .= "<a href='$etsyUrl' class='btn btn-success etsy-link' target='_blank'>View on Etsy</a>";
-        }
-        
-        $card .= "</div></div></div>";
-        
-        return $card;
     }
 
     private function validateArtworkData($data) {
@@ -224,7 +173,6 @@ class ArtworkController {
             }
         }
 
-        // Sanitize and validate data
         return [
             'title' => htmlspecialchars($data['title']),
             'class_name' => !empty($data['class_name']) ? htmlspecialchars($data['class_name']) : null,

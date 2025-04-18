@@ -10,6 +10,7 @@
     <link href="/assets/css/gallery.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="/assets/js/gallery.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light">
@@ -41,12 +42,14 @@
         <div class="filter-section mb-4 medium-section">
             <div class="class-buttons mt-3">
                 <h4>Filter by Class</h4>
-                <div id="class-buttons-container"></div>
+                <div id="class-buttons-container">
+                    <a href="#" class="btn btn-outline-secondary me-2 mb-2 active" data-class="All">All</a>
+                </div>
             </div>
         </div>
 
         <!-- Artworks Grid -->
-        <div class="row g-4" id="artworks-container"></div>
+        <div class="artworks-grid" id="artworks-container"></div>
     </div>
 
     <footer class="mt-5 py-3">
@@ -67,63 +70,70 @@
                 type: 'GET',
                 dataType: 'json',
                 success: function(data) {
+                    console.log('Received data:', data); // Debug log
+                    
                     // Render class buttons
                     const classButtonsContainer = $('#class-buttons-container');
-                    data.classes.forEach(function(className) {
-                        const button = $(`
-                            <a href="/artworks/class/${encodeURIComponent(className)}" 
-                               class="btn btn-outline-secondary me-2 mb-2">
-                                ${className}
-                            </a>
-                        `);
-                        classButtonsContainer.append(button);
-                    });
+                    if (data.classes && data.classes.length > 0) {
+                        data.classes.forEach(function(className) {
+                            if (className) { // Only add non-empty class names
+                                const button = $(`
+                                    <a href="#" 
+                                       class="btn btn-outline-secondary me-2 mb-2"
+                                       data-class="${className}">
+                                        ${className}
+                                    </a>
+                                `);
+                                classButtonsContainer.append(button);
+                            }
+                        });
+                    }
 
                     // Render artworks
                     const artworksContainer = $('#artworks-container');
-                    data.artworks.forEach(function(artwork) {
-                        const artworkCard = $(`
-                            <div class="col-md-6 col-lg-4">
-                                <div class="card medium-section h-100">
-                                    <img src="${artwork.image_url}" 
-                                         class="card-img-top" 
-                                         alt="${artwork.title}">
-                                    <div class="card-body">
-                                        <h5 class="card-title">${artwork.title}</h5>
-                                        <p class="card-text">
-                                            ${artwork.class_name ? 
-                                                `<span class="badge bg-secondary">${artwork.class_name}</span>` : 
-                                                ''}
-                                        </p>
-                                        <p class="card-text">${artwork.description || ''}</p>
-                                        <p class="card-text">
-                                            <small class="text-muted">
+                    if (data.artworks && data.artworks.length > 0) {
+                        data.artworks.forEach(function(artwork) {
+                            console.log('Rendering artwork:', artwork); // Debug log
+                            const artworkCard = $(`
+                                <div class="artwork-card" data-class="${artwork.class_name || ''}">
+                                    <div class="artwork-image">
+                                        <img src="${artwork.image_url}" 
+                                             alt="${artwork.title}">
+                                    </div>
+                                    <div class="artwork-info">
+                                        <h3>${artwork.title}</h3>
+                                        ${artwork.class_name ? 
+                                            `<p class="class-tag">${artwork.class_name}</p>` : 
+                                            ''}
+                                        <p>${artwork.description || ''}</p>
+                                        <p>
+                                            <small>
                                                 Medium: ${artwork.medium || 'Not specified'}<br>
                                                 Dimensions: ${artwork.dimensions || 'Not specified'}
                                             </small>
                                         </p>
                                         ${artwork.price ? 
-                                            `<p class="card-text">
-                                                <strong>Price: $${parseFloat(artwork.price).toFixed(2)}</strong>
-                                            </p>` : 
+                                            `<p><strong>Price: $${parseFloat(artwork.price).toFixed(2)}</strong></p>` : 
                                             ''}
-                                    </div>
-                                    <div class="card-footer">
-                                        <a href="/artworks/${artwork.id}" class="btn">View Details</a>
-                                        ${artwork.etsy_url ? 
-                                            `<a href="${artwork.etsy_url}" 
-                                               class="btn ms-2" 
-                                               target="_blank">Buy on Etsy</a>` : 
-                                            ''}
+                                        <div class="artwork-actions">
+                                            <a href="/artworks/${artwork.id}" class="btn">View Details</a>
+                                            ${artwork.etsy_url ? 
+                                                `<a href="${artwork.etsy_url}" 
+                                                   class="btn ms-2 etsy-link" 
+                                                   target="_blank">Buy on Etsy</a>` : 
+                                                ''}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        `);
-                        artworksContainer.append(artworkCard);
-                    });
+                            `);
+                            artworksContainer.append(artworkCard);
+                        });
+                    } else {
+                        artworksContainer.html('<div class="alert alert-info">No artworks found.</div>');
+                    }
                 },
                 error: function(xhr, status, error) {
-                    console.error('Error fetching artworks:', error);
+                    console.error('Error fetching artworks:', error, xhr.responseText);
                     $('#artworks-container').html('<div class="alert alert-danger">Error loading artworks. Please try again later.</div>');
                 }
             });
