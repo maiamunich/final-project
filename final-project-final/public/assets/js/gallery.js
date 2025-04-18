@@ -92,38 +92,61 @@ document.addEventListener('DOMContentLoaded', function() {
             type: 'GET',
             dataType: 'json',
             success: function(response) {
-                if (response.success) {
+                console.log('API Response:', response);
+                if (response.success && response.data) {
                     renderGallery(response.data);
                 } else {
-                    showError('Failed to load artworks: ' + response.error);
+                    const errorMessage = response.error || 'Failed to load artworks';
+                    console.error('API Error:', errorMessage);
+                    showError(errorMessage);
                 }
             },
             error: function(xhr, status, error) {
+                console.error('AJAX Error:', {
+                    status: status,
+                    error: error,
+                    response: xhr.responseText
+                });
                 showError('Error loading artworks. Please try again later.');
-                console.error('Error:', error);
             }
         });
     }
 
     function renderGallery(data) {
+        console.log('Rendering gallery with data:', data);
         const { artworks, classes } = data;
         
         // Render class buttons
         const classButtonsContainer = document.getElementById('class-buttons-container');
+        if (!classButtonsContainer) {
+            console.error('Class buttons container not found');
+            return;
+        }
+        
         classButtonsContainer.innerHTML = '<a href="#" class="btn btn-outline-secondary me-2 mb-2 active" data-class="All">All</a>';
         
-        classes.forEach(className => {
-            if (className) {
-                const button = document.createElement('a');
-                button.href = '#';
-                button.className = 'btn btn-outline-secondary me-2 mb-2';
-                button.setAttribute('data-class', className);
-                button.textContent = className;
-                classButtonsContainer.appendChild(button);
-            }
-        });
+        if (Array.isArray(classes)) {
+            classes.forEach(className => {
+                if (className) {
+                    const button = document.createElement('a');
+                    button.href = '#';
+                    button.className = 'btn btn-outline-secondary me-2 mb-2';
+                    button.setAttribute('data-class', className);
+                    button.textContent = className;
+                    classButtonsContainer.appendChild(button);
+                }
+            });
+        } else {
+            console.error('Classes is not an array:', classes);
+        }
 
         // Render artworks
+        if (!Array.isArray(artworks)) {
+            console.error('Artworks is not an array:', artworks);
+            showError('Invalid artwork data received');
+            return;
+        }
+
         artworksContainer.innerHTML = '';
         if (artworks.length === 0) {
             artworksContainer.innerHTML = '<div class="alert alert-info">No artworks found.</div>';

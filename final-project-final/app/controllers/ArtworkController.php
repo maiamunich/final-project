@@ -120,17 +120,28 @@ class ArtworkController {
     public function getArtworksApi() {
         header('Content-Type: application/json');
         try {
+            error_log("getArtworksApi called");
+            
+            error_log("Fetching all artworks...");
             $artworks = $this->artwork->all();
+            error_log("Artworks fetched: " . print_r($artworks, true));
+            
+            error_log("Fetching unique classes...");
             $classes = $this->artwork->getUniqueClasses();
+            error_log("Classes fetched: " . print_r($classes, true));
 
-            echo json_encode([
+            $response = [
                 'success' => true,
                 'data' => [
                     'artworks' => $artworks,
                     'classes' => $classes
                 ]
-            ]);
+            ];
+            error_log("Sending response: " . json_encode($response));
+            echo json_encode($response);
         } catch (\Exception $e) {
+            error_log("Error in getArtworksApi: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
             http_response_code(500);
             echo json_encode([
                 'success' => false,

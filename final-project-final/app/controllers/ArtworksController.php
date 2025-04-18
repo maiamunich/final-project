@@ -8,76 +8,127 @@ class ArtworksController {
     }
 
     public function apiIndex() {
-        $artworks = $this->artworkModel->getAllArtworks();
-        $classes = $this->artworkModel->getAllClasses();
-        
-        $response = [
-            'artworks' => $artworks,
-            'classes' => $classes
-        ];
-        
-        header('Content-Type: application/json');
-        echo json_encode($response);
+        try {
+            $artworks = $this->artworkModel->getAll();
+            $classes = $this->artworkModel->getUniqueClasses();
+            
+            $response = [
+                'success' => true,
+                'data' => [
+                    'artworks' => $artworks,
+                    'classes' => $classes
+                ]
+            ];
+            
+            header('Content-Type: application/json');
+            echo json_encode($response);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Failed to fetch artworks: ' . $e->getMessage()
+            ]);
+        }
     }
 
     public function apiGetArtwork($id) {
-        $artwork = $this->artworkModel->getArtworkById($id);
-        if ($artwork) {
-            header('Content-Type: application/json');
-            echo json_encode($artwork);
-        } else {
-            http_response_code(404);
-            echo json_encode(['error' => 'Artwork not found']);
+        try {
+            $artwork = $this->artworkModel->find($id);
+            if ($artwork) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => true,
+                    'data' => $artwork
+                ]);
+            } else {
+                http_response_code(404);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Artwork not found'
+                ]);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Failed to fetch artwork: ' . $e->getMessage()
+            ]);
         }
     }
 
     public function apiUpdateArtwork($id) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = json_decode(file_get_contents('php://input'), true);
-            $result = $this->artworkModel->updateArtwork($id, $data);
-            
-            if ($result) {
+            try {
+                $data = json_decode(file_get_contents('php://input'), true);
+                $result = $this->artworkModel->update($id, $data);
+                
                 header('Content-Type: application/json');
-                echo json_encode(['success' => true]);
-            } else {
+                echo json_encode([
+                    'success' => true,
+                    'data' => $result
+                ]);
+            } catch (Exception $e) {
                 http_response_code(400);
-                echo json_encode(['error' => 'Failed to update artwork']);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Failed to update artwork: ' . $e->getMessage()
+                ]);
             }
         } else {
             http_response_code(405);
-            echo json_encode(['error' => 'Method not allowed']);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Method not allowed'
+            ]);
         }
     }
 
     public function apiCreateArtwork() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = json_decode(file_get_contents('php://input'), true);
-            $result = $this->artworkModel->createArtwork($data);
-            
-            if ($result) {
+            try {
+                $data = json_decode(file_get_contents('php://input'), true);
+                $result = $this->artworkModel->create($data);
+                
                 header('Content-Type: application/json');
-                echo json_encode(['success' => true, 'id' => $result]);
-            } else {
+                echo json_encode([
+                    'success' => true,
+                    'data' => [
+                        'id' => $result
+                    ]
+                ]);
+            } catch (Exception $e) {
                 http_response_code(400);
-                echo json_encode(['error' => 'Failed to create artwork']);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Failed to create artwork: ' . $e->getMessage()
+                ]);
             }
         } else {
             http_response_code(405);
-            echo json_encode(['error' => 'Method not allowed']);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Method not allowed'
+            ]);
         }
     }
 
     public function apiGetArtworksByClass($class) {
-        $artworks = $this->artworkModel->getArtworksByClass($class);
-        if ($artworks) {
+        try {
+            $artworks = $this->artworkModel->getByClass($class);
             header('Content-Type: application/json');
             echo json_encode([
-                'class' => $class,
-                'artworks' => $artworks
+                'success' => true,
+                'data' => [
+                    'class' => $class,
+                    'artworks' => $artworks
+                ]
             ]);
-        } else {
-            http_response_code(404);
-            echo json_encode(['error' => 'No artworks found for this class']);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Failed to fetch artworks by class: ' . $e->getMessage()
+            ]);
         }
     }
 } 

@@ -19,9 +19,16 @@ class Model {
             $pass = 'root';
             $socket = '/Applications/MAMP/tmp/mysql/mysql.sock';  // MAMP MySQL socket
 
+            // Log connection attempt
+            error_log("Attempting database connection with settings:");
+            error_log("Host: $host, Port: $port, Database: $dbname");
+
             // Create PDO instance with MAMP settings
+            $dsn = "mysql:host=$host;port=$port;dbname=$dbname;unix_socket=$socket";
+            error_log("DSN: $dsn");
+
             $this->db = new PDO(
-                "mysql:host=$host;port=$port;dbname=$dbname;unix_socket=$socket",
+                $dsn,
                 $user,
                 $pass,
                 [
@@ -30,20 +37,30 @@ class Model {
                     PDO::ATTR_EMULATE_PREPARES => false
                 ]
             );
+            error_log("Database connection successful!");
         } catch (PDOException $e) {
-            // Log the error but don't expose details to the user
-            error_log("Database Connection Error: " . $e->getMessage());
-            throw new \Exception("Database connection failed: " . $e->getMessage());
+            // Log the detailed error
+            error_log("Database Connection Error Details: " . $e->getMessage());
+            error_log("Error Code: " . $e->getCode());
+            error_log("Stack Trace: " . $e->getTraceAsString());
+            throw new \Exception("Database connection failed. Please check error logs for details.");
         }
     }
 
     protected function query($sql, $params = []) {
         try {
+            error_log("Executing SQL: " . $sql);
+            error_log("Parameters: " . print_r($params, true));
+            
             $stmt = $this->db->prepare($sql);
             $stmt->execute($params);
+            
+            error_log("Query executed successfully");
             return $stmt;
         } catch (PDOException $e) {
-            error_log("Query Error: " . $e->getMessage() . " SQL: " . $sql);
+            error_log("Query Error: " . $e->getMessage());
+            error_log("SQL: " . $sql);
+            error_log("Parameters: " . print_r($params, true));
             throw new \Exception("Database query failed: " . $e->getMessage());
         }
     }
@@ -55,8 +72,16 @@ class Model {
     }
 
     public function all() {
-        $sql = "SELECT * FROM {$this->table}";
-        return $this->query($sql)->fetchAll();
+        try {
+            error_log("Attempting to fetch all records from table: {$this->table}");
+            $sql = "SELECT * FROM {$this->table}";
+            $result = $this->query($sql)->fetchAll();
+            error_log("Found " . count($result) . " records");
+            return $result;
+        } catch (\Exception $e) {
+            error_log("Error in all() method: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function create($data) {
