@@ -1,14 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle year filter buttons
-    const yearButtons = document.querySelectorAll('.year-buttons .btn');
-    yearButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const year = this.textContent;
-            filterArtworks('year', year);
-        });
-    });
-
     // Handle class filter buttons
     const classButtons = document.querySelectorAll('.class-buttons .btn');
     classButtons.forEach(button => {

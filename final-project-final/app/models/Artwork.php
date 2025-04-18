@@ -20,20 +20,9 @@ class Artwork extends Model {
         return $this->find($id);
     }
 
-    public function getByYear($year) {
-        $sql = "SELECT * FROM {$this->table} WHERE year = ? ORDER BY created_at DESC";
-        return $this->query($sql, [$year]);
-    }
-
     public function getByClass($class) {
-        $sql = "SELECT * FROM {$this->table} WHERE class = ? ORDER BY year DESC, created_at DESC";
+        $sql = "SELECT * FROM {$this->table} WHERE class = ? ORDER BY created_at DESC";
         return $this->query($sql, [$class]);
-    }
-
-    public function getYears() {
-        $sql = "SELECT DISTINCT year FROM {$this->table} ORDER BY year DESC";
-        $result = $this->query($sql);
-        return $result->fetchAll(\PDO::FETCH_COLUMN);
     }
 
     public function getClasses() {

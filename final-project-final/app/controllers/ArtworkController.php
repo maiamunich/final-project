@@ -64,16 +64,6 @@ class ArtworkController {
         exit;
     }
 
-    public function getArtworksByYear($year) {
-        $artworks = $this->artwork->getByYear($year);
-        $data = [
-            'year' => $year,
-            'artworks' => $artworks
-        ];
-        
-        $this->view->render('artworks/year', $data);
-    }
-
     public function getArtworksByClass($class) {
         $artworks = $this->artwork->getByClass($class);
         $data = [
@@ -86,24 +76,14 @@ class ArtworkController {
 
     public function gallery() {
         $artworks = $this->artwork->getAll();
-        $years = $this->artwork->getYears();
         $classes = $this->artwork->getClasses();
 
         $data = [
-            'years' => $years,
             'classes' => $classes,
             'artworks' => $artworks
         ];
 
         $this->view->render('artworks/gallery', $data);
-    }
-
-    public function byYear($year) {
-        $artworks = $this->artwork->where('year', $year);
-        $this->view->render('artworks/gallery', [
-            'artworks' => $artworks,
-            'currentYear' => $year
-        ]);
     }
 
     public function byClass($class) {
@@ -121,13 +101,12 @@ class ArtworkController {
         $medium = htmlspecialchars($artwork['medium']);
         $etsyUrl = htmlspecialchars($artwork['etsy_url'] ?? '');
 
-        $card = "<div class='artwork-card' data-year='{$artwork['year']}' data-class='$class'>";
+        $card = "<div class='artwork-card' data-class='$class'>";
         $card .= "<div class='artwork-image'>";
         $card .= "<img src='$imageUrl' alt='$title'>";
         $card .= "</div>";
         $card .= "<div class='artwork-info'>";
         $card .= "<h3>$title</h3>";
-        $card .= "<p class='year'>{$artwork['year']}</p>";
         
         if ($class) {
             $card .= "<p class='class'>$class</p>";
@@ -147,7 +126,7 @@ class ArtworkController {
     }
 
     private function validateArtworkData($data) {
-        $required = ['title', 'year', 'image_url'];
+        $required = ['title', 'image_url'];
         foreach ($required as $field) {
             if (empty($data[$field])) {
                 return false;
@@ -157,7 +136,6 @@ class ArtworkController {
         // Sanitize and validate data
         return [
             'title' => htmlspecialchars($data['title']),
-            'year' => (int)$data['year'],
             'class_name' => !empty($data['class_name']) ? htmlspecialchars($data['class_name']) : null,
             'image_url' => htmlspecialchars($data['image_url']),
             'description' => !empty($data['description']) ? htmlspecialchars($data['description']) : null,

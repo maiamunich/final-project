@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New Artwork</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/assets/css/main.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -31,7 +33,7 @@
         <h1>Add New Artwork</h1>
         <a href="/artworks" class="btn btn-secondary mb-4">Back to Gallery</a>
         
-        <form method="POST" action="/artworks/create" class="mt-4">
+        <form id="create-artwork-form" class="mt-4">
             <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
                 <input type="text" class="form-control" id="title" name="title" required>
@@ -89,6 +91,39 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#create-artwork-form').on('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    title: $('#title').val(),
+                    year: $('#year').val(),
+                    class_name: $('#class_name').val(),
+                    image_url: $('#image_url').val(),
+                    description: $('#description').val(),
+                    medium: $('#medium').val(),
+                    dimensions: $('#dimensions').val(),
+                    price: $('#price').val(),
+                    etsy_url: $('#etsy_url').val()
+                };
+
+                $.ajax({
+                    url: '/api/artworks/create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function(response) {
+                        alert('Artwork created successfully!');
+                        window.location.href = `/artworks/${response.id}`;
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error creating artwork:', error);
+                        alert('Error creating artwork. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html> 

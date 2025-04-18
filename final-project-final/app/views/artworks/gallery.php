@@ -6,6 +6,8 @@
     <title>Art Gallery</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/assets/css/gallery.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -29,72 +31,85 @@
 
         <!-- Filter Buttons -->
         <div class="filter-section mb-4">
-            <div class="year-buttons">
-                <h4>Filter by Year</h4>
-                <?php foreach ($years ?? [] as $year): ?>
-                    <a href="/artworks/year/<?= htmlspecialchars($year) ?>" 
-                       class="btn btn-outline-primary <?= isset($currentYear) && $currentYear == $year ? 'active' : '' ?>">
-                        <?= htmlspecialchars($year) ?>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-
             <div class="class-buttons mt-3">
                 <h4>Filter by Class</h4>
-                <?php foreach ($classes ?? [] as $class): ?>
-                    <a href="/artworks/class/<?= urlencode($class) ?>" 
-                       class="btn btn-outline-secondary <?= isset($currentClass) && $currentClass == $class ? 'active' : '' ?>">
-                        <?= htmlspecialchars($class) ?>
-                    </a>
-                <?php endforeach; ?>
+                <div id="class-buttons-container"></div>
             </div>
         </div>
 
         <!-- Artworks Grid -->
-        <div class="row g-4">
-            <?php foreach ($artworks as $artwork): ?>
-                <div class="col-md-6 col-lg-4">
-                    <div class="card artwork-card h-100">
-                        <img src="<?= htmlspecialchars($artwork['image_url']) ?>" 
-                             class="card-img-top" 
-                             alt="<?= htmlspecialchars($artwork['title']) ?>">
-                        <div class="card-body">
-                            <h5 class="card-title"><?= htmlspecialchars($artwork['title']) ?></h5>
-                            <p class="card-text">
-                                <?php if (!empty($artwork['year'])): ?>
-                                    <span class="badge bg-primary"><?= htmlspecialchars($artwork['year']) ?></span>
-                                <?php endif; ?>
-                                <?php if (!empty($artwork['class_name'])): ?>
-                                    <span class="badge bg-secondary"><?= htmlspecialchars($artwork['class_name']) ?></span>
-                                <?php endif; ?>
-                            </p>
-                            <p class="card-text"><?= htmlspecialchars($artwork['description'] ?? '') ?></p>
-                            <p class="card-text">
-                                <small class="text-muted">
-                                    Medium: <?= htmlspecialchars($artwork['medium'] ?? 'Not specified') ?><br>
-                                    Dimensions: <?= htmlspecialchars($artwork['dimensions'] ?? 'Not specified') ?>
-                                </small>
-                            </p>
-                            <?php if (!empty($artwork['price'])): ?>
-                                <p class="card-text">
-                                    <strong>Price: $<?= number_format($artwork['price'], 2) ?></strong>
-                                </p>
-                            <?php endif; ?>
-                        </div>
-                        <div class="card-footer">
-                            <a href="/artworks/<?= $artwork['id'] ?>" class="btn btn-primary">View Details</a>
-                            <?php if (!empty($artwork['etsy_url'])): ?>
-                                <a href="<?= htmlspecialchars($artwork['etsy_url']) ?>" 
-                                   class="btn btn-success" 
-                                   target="_blank">Buy on Etsy</a>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
+        <div class="row g-4" id="artworks-container"></div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Fetch artworks and classes
+            $.ajax({
+                url: '/api/artworks',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    // Render class buttons
+                    const classButtonsContainer = $('#class-buttons-container');
+                    data.classes.forEach(function(className) {
+                        const button = $(`
+                            <a href="/artworks/class/${encodeURIComponent(className)}" 
+                               class="btn btn-outline-secondary">
+                                ${className}
+                            </a>
+                        `);
+                        classButtonsContainer.append(button);
+                    });
+
+                    // Render artworks
+                    const artworksContainer = $('#artworks-container');
+                    data.artworks.forEach(function(artwork) {
+                        const artworkCard = $(`
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card artwork-card h-100">
+                                    <img src="${artwork.image_url}" 
+                                         class="card-img-top" 
+                                         alt="${artwork.title}">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${artwork.title}</h5>
+                                        <p class="card-text">
+                                            ${artwork.class_name ? 
+                                                `<span class="badge bg-secondary">${artwork.class_name}</span>` : 
+                                                ''}
+                                        </p>
+                                        <p class="card-text">${artwork.description || ''}</p>
+                                        <p class="card-text">
+                                            <small class="text-muted">
+                                                Medium: ${artwork.medium || 'Not specified'}<br>
+                                                Dimensions: ${artwork.dimensions || 'Not specified'}
+                                            </small>
+                                        </p>
+                                        ${artwork.price ? 
+                                            `<p class="card-text">
+                                                <strong>Price: $${parseFloat(artwork.price).toFixed(2)}</strong>
+                                            </p>` : 
+                                            ''}
+                                    </div>
+                                    <div class="card-footer">
+                                        <a href="/artworks/${artwork.id}" class="btn btn-primary">View Details</a>
+                                        ${artwork.etsy_url ? 
+                                            `<a href="${artwork.etsy_url}" 
+                                               class="btn btn-success" 
+                                               target="_blank">Buy on Etsy</a>` : 
+                                            ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+                        artworksContainer.append(artworkCard);
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching artworks:', error);
+                    $('#artworks-container').html('<div class="alert alert-danger">Error loading artworks. Please try again later.</div>');
+                }
+            });
+        });
+    </script>
 </body>
 </html> 

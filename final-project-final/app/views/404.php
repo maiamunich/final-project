@@ -6,6 +6,7 @@
     <title>404 - Page Not Found</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/assets/css/main.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -35,10 +36,17 @@
 
     <footer class="mt-5 py-3 bg-light">
         <div class="container text-center">
-            <p>&copy; <?= date('Y') ?> Art Portfolio. All rights reserved.</p>
+            <p id="copyright"></p>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Set copyright year using JavaScript
+            const currentYear = new Date().getFullYear();
+            $('#copyright').text(`© ${currentYear} Art Portfolio. All rights reserved.`);
+        });
+    </script>
 </body>
 </html> 

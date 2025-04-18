@@ -1,18 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle year filter
-    const yearFilter = document.getElementById('yearFilter');
-    if (yearFilter) {
-        yearFilter.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const year = document.getElementById('year').value;
-            if (year) {
-                window.location.href = `/artworks/year/${year}`;
-            } else {
-                window.location.href = '/artworks';
-            }
-        });
-    }
-
     // Handle class filter
     const classFilter = document.getElementById('classFilter');
     if (classFilter) {
@@ -46,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
         link.addEventListener('click', function(e) {
             e.preventDefault();
             const etsyUrl = this.href;
-            // You can add additional Etsy integration logic here
             window.open(etsyUrl, '_blank');
         });
     });
