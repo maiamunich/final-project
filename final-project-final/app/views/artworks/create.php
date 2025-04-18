@@ -6,11 +6,12 @@
     <title>Add New Artwork</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/assets/css/main.css" rel="stylesheet">
+    <link href="/assets/styles/homepage.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand" href="/">Art Portfolio</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -24,6 +25,9 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="/artworks">Gallery</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">Contact</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -33,15 +37,10 @@
         <h1>Add New Artwork</h1>
         <a href="/artworks" class="btn btn-secondary mb-4">Back to Gallery</a>
         
-        <form id="create-artwork-form" class="mt-4">
+        <form id="create-artwork-form" class="mt-4" action="/artworks/create" method="POST">
             <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
                 <input type="text" class="form-control" id="title" name="title" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="year" class="form-label">Year</label>
-                <input type="number" class="form-control" id="year" name="year" required>
             </div>
 
             <div class="mb-3">
@@ -80,49 +79,24 @@
             </div>
 
             <div class="mb-3">
-                <button type="submit" class="btn btn-primary">Add Artwork</button>
+                <button type="submit" class="btn">Add Artwork</button>
             </div>
         </form>
     </div>
 
-    <footer class="mt-5 py-3 bg-light">
+    <footer class="mt-5 py-3">
         <div class="container text-center">
-            <p>&copy; <?= date('Y') ?> Art Portfolio. All rights reserved.</p>
+            <p id="copyright"></p>
         </div>
     </footer>
 
     <script>
         $(document).ready(function() {
-            $('#create-artwork-form').on('submit', function(e) {
-                e.preventDefault();
-                
-                const formData = {
-                    title: $('#title').val(),
-                    year: $('#year').val(),
-                    class_name: $('#class_name').val(),
-                    image_url: $('#image_url').val(),
-                    description: $('#description').val(),
-                    medium: $('#medium').val(),
-                    dimensions: $('#dimensions').val(),
-                    price: $('#price').val(),
-                    etsy_url: $('#etsy_url').val()
-                };
+            // Set copyright year
+            const currentYear = new Date().getFullYear();
+            $('#copyright').text(`© ${currentYear} Art Portfolio. All rights reserved.`);
 
-                $.ajax({
-                    url: '/api/artworks/create',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(formData),
-                    success: function(response) {
-                        alert('Artwork created successfully!');
-                        window.location.href = `/artworks/${response.id}`;
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error creating artwork:', error);
-                        alert('Error creating artwork. Please try again.');
-                    }
-                });
-            });
+            // Remove the AJAX submission logic since the controller handles POST directly
         });
     </script>
 </body>

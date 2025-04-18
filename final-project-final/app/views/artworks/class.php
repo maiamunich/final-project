@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Artworks by Class</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/css/main.css" rel="stylesheet">
+    <link href="/assets/styles/homepage.css" rel="stylesheet">
     <link href="/assets/css/gallery.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand" href="/">Art Portfolio</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -24,6 +24,9 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="/artworks">Gallery</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">Contact</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -33,40 +36,65 @@
         <h1 id="class-title">Artworks by Class</h1>
         <a href="/artworks" class="btn btn-secondary mb-4">Back to Gallery</a>
         
-        <div class="artworks-grid" id="artworks-container"></div>
+        <div class="row g-4" id="artworks-container">
+            <!-- Artworks will be loaded here by AJAX -->
+        </div>
     </div>
 
+    <footer class="mt-5 py-3">
+        <div class="container text-center">
+            <p id="copyright"></p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Get class name from URL
-            const classPath = window.location.pathname.split('/');
-            const className = decodeURIComponent(classPath[classPath.length - 1]);
+            // Set copyright year
+            const currentYear = new Date().getFullYear();
+            $('#copyright').text(`© ${currentYear} Art Portfolio. All rights reserved.`);
+
+            // Get class name from URL (extracting from /artworks/class/{className})
+            const pathSegments = window.location.pathname.split('/');
+            const className = decodeURIComponent(pathSegments[pathSegments.length - 1]); // Assuming class name is the last segment
             
             // Update page title
             document.title = `Artworks from ${className}`;
             $('#class-title').text(`Artworks from ${className}`);
             
-            // Fetch artworks for this class
+            // Fetch artworks for this class via API
             $.ajax({
-                url: `/api/artworks/class/${encodeURIComponent(className)}`,
+                url: `/api/artworks/class/${encodeURIComponent(className)}`, // We need to create this endpoint
                 type: 'GET',
                 dataType: 'json',
-                success: function(data) {
+                success: function(artworks) {
                     const artworksContainer = $('#artworks-container');
+                    artworksContainer.empty(); // Clear any previous content
+
+                    if (!artworks || artworks.length === 0) {
+                        artworksContainer.html('<div class="col-12"><div class="alert alert-info">No artworks found for this class.</div></div>');
+                        return;
+                    }
                     
-                    data.artworks.forEach(function(artwork) {
+                    artworks.forEach(function(artwork) {
+                        const artworkId = artwork.id;
+                        const imageUrl = artwork.image_url;
+                        const artworkTitle = artwork.title;
+                        const etsyUrl = artwork.etsy_url || '';
+
                         const artworkCard = $(`
-                            <div class="artwork-card">
-                                <div class="artwork-image">
-                                    <img src="${artwork.image_url}" alt="${artwork.title}">
-                                </div>
-                                <div class="artwork-info">
-                                    <h3>${artwork.title}</h3>
-                                    <p class="medium">${artwork.medium || ''}</p>
-                                    <div class="artwork-actions">
-                                        <a href="/artworks/${artwork.id}" class="btn btn-primary">View Details</a>
-                                        ${artwork.etsy_url ? 
-                                            `<a href="${artwork.etsy_url}" class="btn btn-success etsy-link" target="_blank">View on Etsy</a>` : 
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card medium-section h-100">
+                                    <img src="${imageUrl}" class="card-img-top" alt="${artworkTitle}">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${artworkTitle}</h5>
+                                        <!-- Add other details if needed -->
+                                    </div>
+                                    <div class="card-footer">
+                                        <a href="/artworks/${artworkId}" class="btn">View Details</a>
+                                        ${etsyUrl ? 
+                                            `<a href="${etsyUrl}" class="btn ms-2" target="_blank">Buy on Etsy</a>` : 
                                             ''}
                                     </div>
                                 </div>
@@ -76,12 +104,8 @@
                     });
                 },
                 error: function(xhr, status, error) {
-                    console.error('Error fetching artworks:', error);
-                    $('#artworks-container').html(`
-                        <div class="alert alert-danger">
-                            Error loading artworks. Please try again later.
-                        </div>
-                    `);
+                    console.error('Error fetching artworks by class:', error, xhr.responseText);
+                    $('#artworks-container').html('<div class="col-12"><div class="alert alert-danger">Error loading artworks. Please try again later.</div></div>');
                 }
             });
         });

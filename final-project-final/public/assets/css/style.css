@@ -8,13 +8,13 @@
 body {
     font-family: 'Arial', sans-serif;
     line-height: 1.6;
-    color: #333;
-    background-color: #f5f5f5;
+    color: #8B4513;
+    background-color: #FAF0E6;
 }
 
 /* Header styles */
 header {
-    background-color: #2c3e50;
+    background-color: #D2691E;
     padding: 1rem 0;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
@@ -27,7 +27,7 @@ nav ul {
 }
 
 nav a {
-    color: white;
+    color: #FAF0E6;
     text-decoration: none;
     font-weight: bold;
     padding: 0.5rem 1rem;
@@ -36,7 +36,7 @@ nav a {
 }
 
 nav a:hover {
-    background-color: #34495e;
+    background-color: #8B4513;
 }
 
 /* Main content */
@@ -49,7 +49,7 @@ main {
 h1 {
     text-align: center;
     margin-bottom: 2rem;
-    color: #2c3e50;
+    color: #D2691E;
 }
 
 /* Filters */
@@ -70,19 +70,19 @@ h1 {
 .filters select, .filters button {
     padding: 0.5rem;
     border-radius: 4px;
-    border: 1px solid #ddd;
+    border: 1px solid #DAA520;
 }
 
 .filters button {
-    background-color: #3498db;
-    color: white;
+    background-color: #008B8B;
+    color: #FAF0E6;
     border: none;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
 .filters button:hover {
-    background-color: #2980b9;
+    background-color: #DAA520;
 }
 
 /* Gallery grid */
@@ -94,7 +94,7 @@ h1 {
 }
 
 .artwork-card {
-    background: white;
+    background: #FAF0E6;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -118,34 +118,35 @@ h1 {
 .artwork-info h2 {
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
+    color: #D2691E;
 }
 
 .artwork-info p {
     margin-bottom: 0.5rem;
-    color: #666;
+    color: #8B4513;
 }
 
 .view-details {
     display: inline-block;
     margin-top: 1rem;
     padding: 0.5rem 1rem;
-    background-color: #3498db;
-    color: white;
+    background-color: #008B8B;
+    color: #FAF0E6;
     text-decoration: none;
     border-radius: 4px;
     transition: background-color 0.3s;
 }
 
 .view-details:hover {
-    background-color: #2980b9;
+    background-color: #DAA520;
 }
 
 /* Footer */
 footer {
     text-align: center;
     padding: 2rem;
-    background-color: #2c3e50;
-    color: white;
+    background-color: #D2691E;
+    color: #FAF0E6;
     margin-top: 2rem;
 }
 

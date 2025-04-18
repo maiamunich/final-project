@@ -87,11 +87,102 @@ class ArtworkController {
     }
 
     public function byClass($class) {
-        $artworks = $this->artwork->where('class', $class);
+        $artworks = $this->artwork->where('class_name', $class);
         $this->view->render('artworks/gallery', [
             'artworks' => $artworks,
             'currentClass' => $class
         ]);
+    }
+
+    /**
+     * API endpoint to get artworks and classes as JSON.
+     */
+    public function getArtworksApi() {
+        header('Content-Type: application/json');
+        try {
+            $artworks = $this->artwork->all();
+            $classes = $this->artwork->getUniqueClasses(); // Assuming you have a method to get unique classes
+
+            echo json_encode([
+                'artworks' => $artworks,
+                'classes' => $classes
+            ]);
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to fetch artworks: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API endpoint to get a single artwork by ID as JSON.
+     * @param int $id Artwork ID
+     */
+    public function getArtworkApi($id) {
+        header('Content-Type: application/json');
+        try {
+            $artwork = $this->artwork->find($id);
+            if ($artwork) {
+                echo json_encode($artwork);
+            } else {
+                http_response_code(404);
+                echo json_encode(['error' => 'Artwork not found']);
+            }
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to fetch artwork: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API endpoint to update an artwork by ID.
+     * @param int $id Artwork ID
+     */
+    public function updateArtworkApi($id) {
+        header('Content-Type: application/json');
+        $inputData = json_decode(file_get_contents('php://input'), true);
+
+        if (!$inputData) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid input data']);
+            return;
+        }
+
+        $validatedData = $this->validateArtworkData($inputData);
+
+        if (!$validatedData) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Validation failed. Ensure title and image_url are provided.']);
+            return;
+        }
+
+        try {
+            $success = $this->artwork->updateArtwork($id, $validatedData);
+            if ($success) {
+                echo json_encode(['message' => 'Artwork updated successfully', 'id' => $id]);
+            } else {
+                http_response_code(500);
+                echo json_encode(['error' => 'Failed to update artwork in database']);
+            }
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Server error during update: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API endpoint to get artworks by class name as JSON.
+     * @param string $class Class name
+     */
+    public function getArtworksByClassApi($class) {
+        header('Content-Type: application/json');
+        try {
+            // Use the existing model method that fetches by class name
+            $artworks = $this->artwork->where('class_name', $class);
+            echo json_encode($artworks);
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to fetch artworks by class: ' . $e->getMessage()]);
+        }
     }
 
     private function generateArtworkCard($artwork) {

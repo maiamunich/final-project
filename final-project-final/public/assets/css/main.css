@@ -1,25 +1,25 @@
 /* Custom styles for the homepage */
 .hero-section {
     padding: 4rem 0;
-    background-color: #f8f9fa;
+    background-color: #FFDAB9; /* Changed to Creamy Peach */
     border-radius: 10px;
     margin-bottom: 3rem;
 }
 
 .hero-section h1 {
     font-size: 3rem;
-    color: #2c3e50;
+    color: #D2691E; /* Changed to Burnt Orange */
     margin-bottom: 1rem;
 }
 
 .hero-section .lead {
     font-size: 1.5rem;
-    color: #7f8c8d;
+    color: #8B4513; /* Darker shade of Burnt Orange for contrast */
 }
 
 .about-section, .medium-section, .statement-section {
     padding: 2rem;
-    background-color: white;
+    background-color: #FAF0E6; /* Light Linen */
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     margin-bottom: 2rem;
@@ -33,41 +33,54 @@
 }
 
 .about-section h2, .medium-section h2, .statement-section h2 {
-    color: #2c3e50;
+    color: #D2691E; /* Burnt Orange */
     margin-bottom: 1.5rem;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid #3498db;
+    border-bottom: 2px solid #DAA520; /* Golden Mustard */
 }
 
 .about-section p, .medium-section p, .statement-section p {
     font-size: 1.1rem;
     line-height: 1.8;
-    color: #34495e;
+    color: #8B4513; /* Darker shade for better readability */
 }
 
 /* Navbar customization */
 .navbar {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background-color: #FAF0E6; /* Light Linen */
 }
 
 .navbar-brand {
     font-weight: bold;
-    color: #2c3e50 !important;
+    color: #D2691E !important; /* Burnt Orange */
 }
 
 .nav-link {
-    color: #2c3e50 !important;
+    color: #8B4513 !important; /* Darker shade for contrast */
     font-weight: 500;
 }
 
 .nav-link:hover {
-    color: #3498db !important;
+    color: #008B8B !important; /* Bright Teal */
 }
 
 /* Footer customization */
 footer {
-    background-color: #2c3e50 !important;
-    color: white;
+    background-color: #D2691E !important; /* Burnt Orange */
+    color: #FAF0E6; /* Light Linen */
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: #008B8B; /* Bright Teal */
+    border-color: #008B8B;
+    color: #FAF0E6; /* Light Linen */
+}
+
+.btn-primary:hover {
+    background-color: #DAA520; /* Golden Mustard */
+    border-color: #DAA520;
 }
 
 /* Responsive adjustments */

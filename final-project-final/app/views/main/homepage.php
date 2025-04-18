@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maia Nerea Munich - Art Portfolio</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/main.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+    <link href="/assets/styles/homepage.css" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand" href="/">Maia Nerea Munich</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -65,19 +66,26 @@
         <section class="statement-section mb-5">
             <h2>Artist Statement</h2>
             <p>
-                In my artwork I tend to explore politics and the effect it has on my life. Although most of my recent work 
+                In my artwork I tend to explore politics and the affect it has on my life. Although most of my recent work 
                 has been more focused on more personal lived experiences, I tend to gravitate towards more political and hard subjects. 
                 I hope that through my art I am able to make the people who see it think and feel, but also to make them realize they are not alone. 
             </p>
         </section>
     </main>
 
-    <footer class="bg-light py-4 mt-5">
+    <footer class="py-4 mt-5">
         <div class="container text-center">
-            <p>&copy; <?= date('Y') ?> Maia Nerea Munich. All rights reserved.</p>
+            <p id="copyright"></p>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const currentYear = new Date().getFullYear();
+            $('#copyright').text(`© ${currentYear} Maia Nerea Munich. All rights reserved.`);
+        });
+    </script>
 </body>
 </html> 

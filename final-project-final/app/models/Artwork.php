@@ -26,9 +26,18 @@ class Artwork extends Model {
     }
 
     public function getClasses() {
-        $sql = "SELECT DISTINCT class FROM {$this->table} WHERE class IS NOT NULL ORDER BY class ASC";
+        $sql = "SELECT DISTINCT class_name FROM {$this->table} WHERE class_name IS NOT NULL ORDER BY class_name ASC";
         $result = $this->query($sql);
         return $result->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * Get a list of unique, non-null class names.
+     */
+    public function getUniqueClasses() {
+        $sql = "SELECT DISTINCT class_name FROM {$this->table} WHERE class_name IS NOT NULL AND class_name != '' ORDER BY class_name ASC";
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
     public function createArtwork($data) {

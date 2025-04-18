@@ -13,15 +13,11 @@ class MainController {
     }
 
     public function homepage() {
-        $data = [
-            'title' => 'Welcome to My Art Portfolio',
-            'description' => 'Explore my collection of artworks and creative projects.'
-        ];
-        
-        $this->view->render('main/homepage', $data);
+        require_once __DIR__ . '/../views/main/homepage.php';
     }
 
     public function notFound() {
+        require_once __DIR__ . '/../views/404.php';
     }
 
 }

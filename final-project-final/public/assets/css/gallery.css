@@ -1,6 +1,6 @@
 /* Gallery specific styles */
 .year-navigation, .class-navigation {
-    background-color: white;
+    background-color: #FAF0E6;
     padding: 1.5rem;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -8,7 +8,7 @@
 }
 
 .year-navigation h2, .class-navigation h2 {
-    color: #2c3e50;
+    color: #D2691E;
     margin-bottom: 1rem;
     font-size: 1.5rem;
 }
@@ -27,7 +27,7 @@
 }
 
 .artwork-card {
-    background: white;
+    background: #FAF0E6;
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -64,13 +64,13 @@
 }
 
 .artwork-info h3 {
-    color: #2c3e50;
+    color: #D2691E;
     margin-bottom: 0.5rem;
     font-size: 1.2rem;
 }
 
 .artwork-info p {
-    color: #7f8c8d;
+    color: #8B4513;
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
 }
@@ -96,13 +96,13 @@
 }
 
 .year-tag {
-    background-color: #e3f2fd;
-    color: #1976d2;
+    background-color: #FFDAB9;
+    color: #D2691E;
 }
 
 .class-tag {
-    background-color: #f3e5f5;
-    color: #7b1fa2;
+    background-color: #FAF0E6;
+    color: #8B4513;
 }
 
 /* Responsive adjustments */

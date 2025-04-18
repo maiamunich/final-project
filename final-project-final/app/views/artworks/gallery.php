@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Art Gallery</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/css/main.css" rel="stylesheet">
+    <link href="/assets/styles/homepage.css" rel="stylesheet">
     <link href="/assets/css/gallery.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand" href="/">Art Portfolio</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -19,7 +21,13 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="/artworks">Gallery</a>
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/artworks">Gallery</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">Contact</a>
                     </li>
                 </ul>
             </div>
@@ -30,7 +38,7 @@
         <h1 class="mb-4">Art Gallery</h1>
 
         <!-- Filter Buttons -->
-        <div class="filter-section mb-4">
+        <div class="filter-section mb-4 medium-section">
             <div class="class-buttons mt-3">
                 <h4>Filter by Class</h4>
                 <div id="class-buttons-container"></div>
@@ -41,8 +49,18 @@
         <div class="row g-4" id="artworks-container"></div>
     </div>
 
+    <footer class="mt-5 py-3">
+        <div class="container text-center">
+            <p id="copyright"></p>
+        </div>
+    </footer>
+
     <script>
         $(document).ready(function() {
+            // Set copyright year
+            const currentYear = new Date().getFullYear();
+            $('#copyright').text(`© ${currentYear} Art Portfolio. All rights reserved.`);
+
             // Fetch artworks and classes
             $.ajax({
                 url: '/api/artworks',
@@ -54,7 +72,7 @@
                     data.classes.forEach(function(className) {
                         const button = $(`
                             <a href="/artworks/class/${encodeURIComponent(className)}" 
-                               class="btn btn-outline-secondary">
+                               class="btn btn-outline-secondary me-2 mb-2">
                                 ${className}
                             </a>
                         `);
@@ -66,7 +84,7 @@
                     data.artworks.forEach(function(artwork) {
                         const artworkCard = $(`
                             <div class="col-md-6 col-lg-4">
-                                <div class="card artwork-card h-100">
+                                <div class="card medium-section h-100">
                                     <img src="${artwork.image_url}" 
                                          class="card-img-top" 
                                          alt="${artwork.title}">
@@ -91,10 +109,10 @@
                                             ''}
                                     </div>
                                     <div class="card-footer">
-                                        <a href="/artworks/${artwork.id}" class="btn btn-primary">View Details</a>
+                                        <a href="/artworks/${artwork.id}" class="btn">View Details</a>
                                         ${artwork.etsy_url ? 
                                             `<a href="${artwork.etsy_url}" 
-                                               class="btn btn-success" 
+                                               class="btn ms-2" 
                                                target="_blank">Buy on Etsy</a>` : 
                                             ''}
                                     </div>

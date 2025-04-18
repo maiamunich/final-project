@@ -16,9 +16,11 @@ require_once $basePath . "/app/models/Artwork.php";
 require_once $basePath . "/app/views/View.php";
 require_once $basePath . "/app/controllers/MainController.php";
 require_once $basePath . "/app/controllers/ArtworkController.php";
+require_once $basePath . "/app/controllers/ContactController.php";
 
 use app\controllers\MainController;
 use app\controllers\ArtworkController;
+use app\controllers\ContactController;
 
 $routeMatched = false;
 
@@ -26,6 +28,53 @@ $routeMatched = false;
 if ($uri === '/') {
     $controller = new MainController();
     $controller->homepage();
+    $routeMatched = true;
+    exit();
+}
+
+// Contact route
+if ($uri === '/contact') {
+    $controller = new ContactController();
+    $controller->contactView();
+    $routeMatched = true;
+    exit();
+}
+
+// API routes
+if ($uri === '/api/commission' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $controller = new ContactController();
+    $controller->handleCommission();
+    $routeMatched = true;
+    exit();
+}
+
+if ($uri === '/api/artworks' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    $controller = new ArtworkController();
+    $controller->getArtworksApi();
+    $routeMatched = true;
+    exit();
+}
+
+// Add route for fetching a single artwork via API
+if (preg_match('/^\/api\/artworks\/(\d+)$/', $uri, $matches) && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    $controller = new ArtworkController();
+    $controller->getArtworkApi($matches[1]);
+    $routeMatched = true;
+    exit();
+}
+
+// Add route for UPDATING a single artwork via API (used by edit.php)
+if (preg_match('/^\/api\/artworks\/update\/(\d+)$/', $uri, $matches) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $controller = new ArtworkController();
+    $controller->updateArtworkApi($matches[1]); // Pass ID 
+    $routeMatched = true;
+    exit();
+}
+
+// Add route for fetching artworks BY CLASS via API (used by class.php)
+if (preg_match('/^\/api\/artworks\/class\/([^\/]+)$/', $uri, $matches) && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    $controller = new ArtworkController();
+    $controller->getArtworksByClassApi(urldecode($matches[1])); // Pass decoded class name
     $routeMatched = true;
     exit();
 }
@@ -62,6 +111,6 @@ if (preg_match('/^\/artworks\/class\/([^\/]+)$/', $uri, $matches)) {
 // If no route matched, show 404
 if (!$routeMatched) {
     http_response_code(404);
-    include __DIR__ . '/assets/views/404.html';
+    include $basePath . '/app/views/404.php';
     exit();
 } 
