@@ -4,6 +4,7 @@ namespace app\core;
 
 use app\controllers\MainController;
 use app\controllers\UserController;
+use app\controllers\ContactController;
 
 class Router {
     public $uriArray;
@@ -12,6 +13,7 @@ class Router {
         $this->uriArray = $this->routeSplit();
         $this->handleMainRoutes();
         $this->handleUserRoutes();
+        $this->handleContactRoutes();
     }
 
     protected function routeSplit() {
@@ -36,6 +38,20 @@ class Router {
         if ($this->uriArray[1] === 'api' && $this->uriArray[2] === 'users' && $_SERVER['REQUEST_METHOD'] === 'GET') {
             $userController = new UserController();
             $userController->getUsers();
+        }
+    }
+
+    protected function handleContactRoutes() {
+        // Handle contact page view
+        if ($this->uriArray[1] === 'contact' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+            $contactController = new ContactController();
+            $contactController->contactView();
+        }
+
+        // Handle commission form submission
+        if ($this->uriArray[1] === 'api' && $this->uriArray[2] === 'commission' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            $contactController = new ContactController();
+            $contactController->handleCommission();
         }
     }
 }

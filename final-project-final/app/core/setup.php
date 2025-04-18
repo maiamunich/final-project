@@ -6,6 +6,7 @@ require '../app/models/Model.php';
 require '../app/controllers/Controller.php';
 require '../app/controllers/MainController.php';
 require '../app/controllers/UserController.php';
+require '../app/controllers/ContactController.php';
 require '../app/models/User.php';
 
 
