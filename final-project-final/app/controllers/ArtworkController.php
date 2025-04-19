@@ -21,30 +21,14 @@ class ArtworkController {
 
     public function show($id) {
         $artwork = $this->artwork->find($id);
-        if (!$artwork) {
-            http_response_code(404);
-            $this->view->render('errors/404');
-            return;
+        if ($artwork) {
+            $this->view->render('artworks/show', ['artwork' => $artwork]);
+        } else {
+            $this->view->render('404');
         }
-        $this->view->render('artworks/show', ['artwork' => $artwork]);
     }
 
     public function create() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = $this->validateArtworkData($_POST);
-            $result = $this->artwork->createArtwork($data);
-            
-            if ($result['success']) {
-                header('Location: /artworks/' . $result['id']);
-                exit;
-            } else {
-                $this->view->render('artworks/create', [
-                    'errors' => $result['errors'],
-                    'old' => $_POST
-                ]);
-                return;
-            }
-        }
         $this->view->render('artworks/create');
     }
 
@@ -109,12 +93,8 @@ class ArtworkController {
         ]);
     }
 
-    public function byClass($class) {
-        $artworks = $this->artwork->getByClass($class);
-        $this->view->render('artworks/gallery', [
-            'artworks' => $artworks,
-            'currentClass' => $class
-        ]);
+    public function byClass($className) {
+        $this->view->render('artworks/class');
     }
 
     public function getArtworksApi() {

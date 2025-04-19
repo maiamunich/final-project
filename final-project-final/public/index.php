@@ -148,6 +148,6 @@ if (preg_match('/^\/artworks\/class\/([^\/]+)$/', $uri, $matches)) {
 // If no route matched, show 404
 if (!$routeMatched) {
     http_response_code(404);
-    include $basePath . '/app/views/404.php';
+    include $basePath . '/app/views/404.html';
     exit();
 } 
