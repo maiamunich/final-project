@@ -1,3 +1,35 @@
+# Environment variables
+.env
+
+# Operating System Files
 .DS_Store
-.idea
-*.env
+Thumbs.db
+
+# IDE Files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+logs/
+
+# Uploaded files
+public/uploads/
+
+# Composer
+vendor/
+composer.lock
+
+# Node modules
+node_modules/
+package-lock.json
+
+# Cache
+*.cache
+.cache/
+
+# Temporary files
+*.tmp
+*.temp

@@ -11,19 +11,19 @@ class Model {
 
     public function __construct() {
         try {
-            // MAMP default settings
-            $host = 'localhost';
-            $port = '8889';  // MAMP MySQL port
-            $dbname = 'art_portfolio';  // Make sure this matches your database name
-            $user = 'root';
-            $pass = 'root';
-            $socket = '/Applications/MAMP/tmp/mysql/mysql.sock';  // MAMP MySQL socket
+            // Get database credentials from environment variables
+            $host = $_ENV['DB_HOST'] ?? 'localhost';
+            $port = $_ENV['DB_PORT'] ?? '8889';
+            $dbname = $_ENV['DB_NAME'] ?? 'art_portfolio';
+            $user = $_ENV['DB_USER'] ?? 'root';
+            $pass = $_ENV['DB_PASS'] ?? 'root';
+            $socket = $_ENV['DB_SOCKET'] ?? '/Applications/MAMP/tmp/mysql/mysql.sock';
 
             // Log connection attempt
             error_log("Attempting database connection with settings:");
             error_log("Host: $host, Port: $port, Database: $dbname");
 
-            // Create PDO instance with MAMP settings
+            // Create PDO instance with settings from environment
             $dsn = "mysql:host=$host;port=$port;dbname=$dbname;unix_socket=$socket";
             error_log("DSN: $dsn");
 
