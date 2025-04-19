@@ -9,13 +9,23 @@ CREATE TABLE IF NOT EXISTS artworks (
     class_name VARCHAR(255),
     image_url VARCHAR(255) NOT NULL,
     description TEXT,
-    medium VARCHAR(100),
-    dimensions VARCHAR(100),
+    medium VARCHAR(255),
+    dimensions VARCHAR(255),
     price DECIMAL(10,2),
     etsy_url VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create commissions table
+CREATE TABLE IF NOT EXISTS commissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('pending', 'in_progress', 'completed', 'cancelled') DEFAULT 'pending'
+);
 
 -- Insert sample data
 INSERT INTO artworks (title, class_name, image_url, description, medium, dimensions, price) VALUES

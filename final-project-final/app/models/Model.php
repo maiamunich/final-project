@@ -11,39 +11,94 @@ class Model {
 
     public function __construct() {
         try {
+            // Debug output at start of constructor
+            error_log("Model constructor started");
+            error_log("Current working directory: " . getcwd());
+            
+            // Check if environment variables are loaded
+            $required_vars = ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASS', 'DB_SOCKET'];
+            $missing_vars = [];
+            foreach ($required_vars as $var) {
+                if (empty($_ENV[$var])) {
+                    $missing_vars[] = $var;
+                }
+            }
+            
+            if (!empty($missing_vars)) {
+                error_log("Missing required environment variables: " . implode(', ', $missing_vars));
+                error_log("Current ENV vars: " . print_r($_ENV, true));
+                throw new \Exception("Database configuration incomplete. Missing: " . implode(', ', $missing_vars));
+            }
+
             // Get database credentials from environment variables
-            $host = $_ENV['DB_HOST'] ?? 'localhost';
-            $port = $_ENV['DB_PORT'] ?? '8889';
-            $dbname = $_ENV['DB_NAME'] ?? 'art_portfolio';
-            $user = $_ENV['DB_USER'] ?? 'root';
-            $pass = $_ENV['DB_PASS'] ?? 'root';
-            $socket = $_ENV['DB_SOCKET'] ?? '/Applications/MAMP/tmp/mysql/mysql.sock';
+            $host = $_ENV['DB_HOST'];
+            $port = $_ENV['DB_PORT'];
+            $dbname = $_ENV['DB_NAME'];
+            $user = $_ENV['DB_USER'];
+            $pass = $_ENV['DB_PASS'];
+            $socket = $_ENV['DB_SOCKET'];
 
             // Log connection attempt
             error_log("Attempting database connection with settings:");
-            error_log("Host: $host, Port: $port, Database: $dbname");
+            error_log("Host: $host");
+            error_log("Port: $port");
+            error_log("Database: $dbname");
+            error_log("Socket: $socket");
+            error_log("User: $user");
 
-            // Create PDO instance with settings from environment
-            $dsn = "mysql:host=$host;port=$port;dbname=$dbname;unix_socket=$socket";
-            error_log("DSN: $dsn");
-
-            $this->db = new PDO(
-                $dsn,
-                $user,
-                $pass,
-                [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    PDO::ATTR_EMULATE_PREPARES => false
-                ]
-            );
+            // First try socket connection
+            try {
+                $dsn = "mysql:unix_socket=$socket;dbname=$dbname";
+                error_log("Trying socket connection with DSN: $dsn");
+                
+                $this->db = new PDO(
+                    $dsn,
+                    $user,
+                    $pass,
+                    [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                        PDO::ATTR_EMULATE_PREPARES => false
+                    ]
+                );
+            } catch (PDOException $e) {
+                // If socket connection fails, try TCP connection
+                error_log("Socket connection failed, trying TCP connection");
+                $dsn = "mysql:host=$host;port=$port;dbname=$dbname";
+                error_log("Trying TCP connection with DSN: $dsn");
+                
+                $this->db = new PDO(
+                    $dsn,
+                    $user,
+                    $pass,
+                    [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                        PDO::ATTR_EMULATE_PREPARES => false
+                    ]
+                );
+            }
+            
             error_log("Database connection successful!");
+            
+            // Verify connection by running a test query
+            $this->db->query("SELECT 1");
+            error_log("Test query successful");
+            
         } catch (PDOException $e) {
-            // Log the detailed error
-            error_log("Database Connection Error Details: " . $e->getMessage());
-            error_log("Error Code: " . $e->getCode());
-            error_log("Stack Trace: " . $e->getTraceAsString());
-            throw new \Exception("Database connection failed. Please check error logs for details.");
+            error_log("Database Connection Error Details:");
+            error_log("Message: " . $e->getMessage());
+            error_log("Code: " . $e->getCode());
+            error_log("File: " . $e->getFile());
+            error_log("Line: " . $e->getLine());
+            error_log("Trace: " . $e->getTraceAsString());
+            throw new \Exception("Database connection failed: " . $e->getMessage());
+        } catch (\Exception $e) {
+            error_log("Configuration Error:");
+            error_log("Message: " . $e->getMessage());
+            error_log("File: " . $e->getFile());
+            error_log("Line: " . $e->getLine());
+            throw $e;
         }
     }
 

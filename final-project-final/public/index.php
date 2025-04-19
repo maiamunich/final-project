@@ -2,6 +2,41 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Load environment variables from .env file
+$basePath = dirname(__DIR__);
+$envFile = $basePath . '/.env';
+
+error_log("Starting application...");
+error_log("Base path: " . $basePath);
+error_log("Env file path: " . $envFile);
+
+if (file_exists($envFile)) {
+    error_log(".env file found");
+    $envContents = file_get_contents($envFile);
+    error_log("Env file contents: " . $envContents);
+    
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
+            list($key, $value) = explode('=', $line, 2);
+            $key = trim($key);
+            $value = trim($value);
+            $_ENV[$key] = $value;
+            putenv("$key=$value");
+            error_log("Set environment variable: $key = $value");
+        }
+    }
+    
+    // Debug output - check all required DB variables
+    $required_vars = ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASS', 'DB_SOCKET'];
+    foreach ($required_vars as $var) {
+        error_log("$var = " . (isset($_ENV[$var]) ? $_ENV[$var] : 'NOT SET'));
+    }
+} else {
+    error_log("ERROR: .env file not found at: " . $envFile);
+    die("Configuration Error: .env file not found. Please check the application configuration.");
+}
+
 // First define the URI variables
 $uri = $_SERVER["REQUEST_URI"] ?? '/';
 $uri = strtok($uri, '?');
@@ -11,8 +46,10 @@ $uriArray = explode("/", $uri);
 $basePath = dirname(__DIR__);
 
 // Update require paths
+require_once $basePath . "/app/core/Controller.php";
 require_once $basePath . "/app/models/Model.php";
 require_once $basePath . "/app/models/Artwork.php";
+require_once $basePath . "/app/models/Commission.php";
 require_once $basePath . "/app/views/View.php";
 require_once $basePath . "/app/controllers/MainController.php";
 require_once $basePath . "/app/controllers/ArtworkController.php";
@@ -35,7 +72,7 @@ if ($uri === '/') {
 // Contact route
 if ($uri === '/contact') {
     $controller = new ContactController();
-    $controller->contactView();
+    $controller->index();
     $routeMatched = true;
     exit();
 }
@@ -43,7 +80,7 @@ if ($uri === '/contact') {
 // API routes
 if ($uri === '/api/commission' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $controller = new ContactController();
-    $controller->handleCommission();
+    $controller->submit();
     $routeMatched = true;
     exit();
 }
