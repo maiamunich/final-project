@@ -3,6 +3,35 @@ document.addEventListener('DOMContentLoaded', function() {
     const classButtons = document.querySelectorAll('.class-buttons .btn');
     const artworksContainer = document.getElementById('artworks-container');
     
+    // Define the showImageError function in the global scope
+    window.showImageError = function(imgElement, title) {
+        console.group(`Image Error Details for "${title}"`);
+        console.log('Image element:', imgElement);
+        console.log('Source URL:', imgElement.src);
+        console.log('Parent container:', imgElement.parentNode);
+        console.groupEnd();
+
+        const errorContainer = document.createElement('div');
+        errorContainer.className = 'image-error-container';
+        errorContainer.style.cssText = `
+            padding: 20px;
+            background-color: #f8d7da;
+            border: 1px solid #dc3545;
+            border-radius: 4px;
+            text-align: center;
+            color: #721c24;
+            margin: 10px 0;
+        `;
+        
+        errorContainer.innerHTML = `
+            <p><strong>Error loading image for "${title}"</strong></p>
+            <p>Please check the image URL or try again later.</p>
+            <small style="font-family: monospace; word-break: break-all;">URL: ${imgElement.src}</small>
+        `;
+        
+        imgElement.parentNode.replaceChild(errorContainer, imgElement);
+    };
+
     classButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
@@ -160,20 +189,52 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Format image URL for Google Drive
             let imageUrl = artwork.image_url;
-            if (!imageUrl.startsWith('http')) {
-                // If it's just a file ID
-                imageUrl = `https://drive.google.com/uc?id=${artwork.image_url}`;
-            } else if (imageUrl.includes('drive.google.com/file/d/')) {
-                // If it's a full Google Drive URL, convert it to direct image URL
-                const fileId = imageUrl.match(/\/d\/(.+?)\/view/)?.[1];
+            console.log(`Processing image for artwork "${artwork.title}":`, {
+                originalUrl: imageUrl,
+                isGoogleDrive: imageUrl.includes('drive.google.com')
+            });
+
+            if (imageUrl.includes('drive.google.com')) {
+                // Extract the file ID from various Google Drive URL formats
+                let fileId = null;
+                
+                // Format 1: /file/d/[ID]/view
+                const format1 = imageUrl.match(/\/file\/d\/([^/]+)/);
+                // Format 2: /d/[ID]/view
+                const format2 = imageUrl.match(/\/d\/([^/]+)/);
+                // Format 3: id=[ID]
+                const format3 = imageUrl.match(/id=([^&]+)/);
+                
+                fileId = format1?.[1] || format2?.[1] || format3?.[1];
+                
                 if (fileId) {
-                    imageUrl = `https://drive.google.com/uc?id=${fileId}`;
+                    // Use the thumbnail API which is more reliable and doesn't get rate limited
+                    imageUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+                    console.log('Transformed Google Drive URL:', {
+                        from: artwork.image_url,
+                        to: imageUrl,
+                        fileId: fileId
+                    });
+                } else {
+                    console.error('Failed to extract Google Drive file ID:', {
+                        url: imageUrl,
+                        attemptedPatterns: [
+                            '/file/d/[ID]',
+                            '/d/[ID]',
+                            'id=[ID]'
+                        ]
+                    });
                 }
             }
 
             artworkCard.innerHTML = `
                 <div class="artwork-image">
-                    <img src="${imageUrl}" alt="${artwork.title}" onerror="this.onerror=null; showImageError(this, '${artwork.title}');">
+                    <img src="${imageUrl}" 
+                         alt="${artwork.title}" 
+                         onerror="showImageError(this, '${artwork.title.replace(/'/g, "\\'")}')"
+                         onload="console.log('Successfully loaded image for:', '${artwork.title.replace(/'/g, "\\'")}')"
+                         style="max-width: 100%; height: auto; display: block; margin: 0 auto;"
+                         referrerpolicy="no-referrer">
                 </div>
                 <div class="artwork-info">
                     <h3>${artwork.title}</h3>
@@ -230,31 +291,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.open(this.href, '_blank');
             });
         });
-    }
-
-    function showImageError(imgElement, title) {
-        // Create an error message container
-        const errorContainer = document.createElement('div');
-        errorContainer.className = 'image-error-container';
-        errorContainer.style.cssText = `
-            padding: 20px;
-            background-color: #f8d7da;
-            border: 1px solid #dc3545;
-            border-radius: 4px;
-            text-align: center;
-            color: #721c24;
-        `;
-        
-        errorContainer.innerHTML = `
-            <p><strong>Error loading image for "${title}"</strong></p>
-            <p>Please check the image URL or try again later.</p>
-        `;
-        
-        // Replace the img element with the error container
-        imgElement.parentNode.replaceChild(errorContainer, imgElement);
-        
-        // Log the error for debugging
-        console.error(`Failed to load image for artwork: ${title}`);
     }
 
     // Initialize the gallery when the page loads
