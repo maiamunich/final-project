@@ -8,16 +8,29 @@
     <link href="/assets/css/main.css" rel="stylesheet">
     <link href="/assets/styles/homepage.css" rel="stylesheet">
     <style>
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            animation: fadeIn 0.3s ease-in;
+        .error-message {
+            display: none;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #dc3545;
+            border-radius: 4px;
+            background-color: #f8d7da;
+            color: #721c24;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .error-message.show {
+            display: block;
+        }
+        .success-message {
+            display: none;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #198754;
+            border-radius: 4px;
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        .success-message.show {
+            display: block;
         }
     </style>
 </head>
@@ -45,7 +58,8 @@
     </nav>
 
     <div class="container mt-4">
-        <div id="notification-container"></div>
+        <div id="errorContainer" class="error-message"></div>
+        <div id="successContainer" class="success-message"></div>
         <h1>Edit Artwork</h1>
         
         <form id="edit-artwork-form" class="mt-4">
@@ -105,32 +119,33 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
-        function showNotification(message, type = 'success') {
-            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-            const notification = `
-                <div class="notification alert ${alertClass} alert-dismissible fade show" role="alert">
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            `;
-            $('#notification-container').html(notification);
+        function showError(message) {
+            const errorContainer = $('#errorContainer');
+            errorContainer.text(message);
+            errorContainer.addClass('show');
             
-            // Auto-dismiss after 5 seconds
             setTimeout(() => {
-                $('.notification').alert('close');
+                errorContainer.removeClass('show');
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successContainer = $('#successContainer');
+            successContainer.text(message);
+            successContainer.addClass('show');
+            
+            setTimeout(() => {
+                successContainer.removeClass('show');
             }, 5000);
         }
 
         $(document).ready(function() {
-            // Set copyright year
             const currentYear = new Date().getFullYear();
             $('#copyright').text(`© ${currentYear} Art Portfolio. All rights reserved.`);
 
-            // Get artwork ID from URL
             const pathSegments = window.location.pathname.split('/');
             const artworkId = pathSegments[pathSegments.length - 1];
             
-            // Fetch artwork data to populate the form
             $.ajax({
                 url: `/api/artworks/${artworkId}`,
                 type: 'GET',
@@ -149,14 +164,13 @@
                 },
                 error: function(xhr, status, error) {
                     console.error('Error fetching artwork:', error);
-                    showNotification('Error loading artwork data. Please try again later.', 'error');
+                    showError('Error loading artwork data. Please try again later.');
                     setTimeout(() => {
                         window.location.href = '/artworks';
                     }, 2000);
                 }
             });
 
-            // Handle form submission via AJAX
             $('#edit-artwork-form').on('submit', function(e) {
                 e.preventDefault();
                 
@@ -177,14 +191,14 @@
                     contentType: 'application/json',
                     data: JSON.stringify(formData),
                     success: function(response) {
-                        showNotification('Artwork updated successfully!');
+                        showSuccess('Artwork updated successfully!');
                         setTimeout(() => {
                             window.location.href = `/artworks/${artworkId}`;
                         }, 1500);
                     },
                     error: function(xhr, status, error) {
                         console.error('Error updating artwork:', error, xhr.responseText);
-                        showNotification('Error updating artwork. Please check the form and try again.', 'error');
+                        showError('Error updating artwork. Please check the form and try again.');
                     }
                 });
             });

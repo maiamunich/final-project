@@ -8,16 +8,29 @@
     <link href="/assets/css/main.css" rel="stylesheet">
     <link href="/assets/styles/homepage.css" rel="stylesheet">
     <style>
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            animation: fadeIn 0.3s ease-in;
+        .error-message {
+            display: none;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #dc3545;
+            border-radius: 4px;
+            background-color: #f8d7da;
+            color: #721c24;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .error-message.show {
+            display: block;
+        }
+        .success-message {
+            display: none;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #198754;
+            border-radius: 4px;
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        .success-message.show {
+            display: block;
         }
     </style>
 </head>
@@ -45,7 +58,8 @@
     </nav>
 
     <div class="container mt-4">
-        <div id="notification-container"></div>
+        <div id="errorContainer" class="error-message"></div>
+        <div id="successContainer" class="success-message"></div>
         <h1>Add New Artwork</h1>
         <a href="/artworks" class="btn btn-secondary mb-4">Back to Gallery</a>
         
@@ -105,18 +119,23 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
-        function showNotification(message, type = 'success') {
-            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-            const notification = `
-                <div class="notification alert ${alertClass} alert-dismissible fade show" role="alert">
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            `;
-            $('#notification-container').html(notification);
+        function showError(message) {
+            const errorContainer = $('#errorContainer');
+            errorContainer.text(message);
+            errorContainer.addClass('show');
             
             setTimeout(() => {
-                $('.notification').alert('close');
+                errorContainer.removeClass('show');
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successContainer = $('#successContainer');
+            successContainer.text(message);
+            successContainer.addClass('show');
+            
+            setTimeout(() => {
+                successContainer.removeClass('show');
             }, 5000);
         }
 
@@ -144,14 +163,14 @@
                     contentType: 'application/json',
                     data: JSON.stringify(formData),
                     success: function(response) {
-                        showNotification('Artwork created successfully!');
+                        showSuccess('Artwork created successfully!');
                         setTimeout(() => {
                             window.location.href = '/artworks';
                         }, 1500);
                     },
                     error: function(xhr, status, error) {
                         console.error('Error creating artwork:', error, xhr.responseText);
-                        showNotification('Error creating artwork. Please check the form and try again.', 'error');
+                        showError('Error creating artwork. Please check the form and try again.');
                     }
                 });
             });
