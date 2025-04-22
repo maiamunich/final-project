@@ -41,7 +41,7 @@ INSERT INTO artworks (title, class_name, image_url, description, medium, dimensi
 ('Lost', 'VART-1180', '/assets/images/Lost.jpg', 'Navigating the New York Subway system ', 'Acrylic on Canvas', '24x20 inches', 250.00),
 ('A Mans Mind is His Misery', 'VART-1180', '/assets/images/Misery.JPG', 'An abstract painting ', 'Acrylic on Unstretched  Canvas', '50x50 inches', 200.00),
 ('My Mess', 'VART-1180', '/assets/images/My_Mess.jpg', 'A painting of the miscellaneous ', 'Acrylic on Canvas', '14x18 inches', 150.00),
-('Do I Overshare?', 'VART-2545', '/assets/images/Overshare.jpg', 'A painting about the need to overshare', 'Acrylic on Paper', '18x24 inches', 150.00),
+('Do I Overshare?', 'VART-2545', 'https://drive.google.com/file/d/1USKf_vcxuF71ZMec1nCV7GYaOqGW54Pi/view?usp=drive_linkCV7GYaOqGW54Pi', 'A painting about the need to overshare', 'Acrylic on Paper', '18x24 inches', 150.00),
 ('Find My Heart', 'VART-1150', '/assets/images/Find.jpg', 'A drawing about the different forms of love', 'Ink on Paper', '18x24 inches', 150.00);
 
 

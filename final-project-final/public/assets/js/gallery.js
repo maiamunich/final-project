@@ -158,9 +158,22 @@ document.addEventListener('DOMContentLoaded', function() {
             artworkCard.className = 'artwork-card';
             artworkCard.setAttribute('data-class', artwork.class_name || '');
 
+            // Format image URL for Google Drive
+            let imageUrl = artwork.image_url;
+            if (!imageUrl.startsWith('http')) {
+                // If it's just a file ID
+                imageUrl = `https://drive.google.com/uc?id=${artwork.image_url}`;
+            } else if (imageUrl.includes('drive.google.com/file/d/')) {
+                // If it's a full Google Drive URL, convert it to direct image URL
+                const fileId = imageUrl.match(/\/d\/(.+?)\/view/)?.[1];
+                if (fileId) {
+                    imageUrl = `https://drive.google.com/uc?id=${fileId}`;
+                }
+            }
+
             artworkCard.innerHTML = `
                 <div class="artwork-image">
-                    <img src="${artwork.image_url}" alt="${artwork.title}">
+                    <img src="${imageUrl}" alt="${artwork.title}" onerror="this.onerror=null; showImageError(this, '${artwork.title}');">
                 </div>
                 <div class="artwork-info">
                     <h3>${artwork.title}</h3>
@@ -217,6 +230,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.open(this.href, '_blank');
             });
         });
+    }
+
+    function showImageError(imgElement, title) {
+        // Create an error message container
+        const errorContainer = document.createElement('div');
+        errorContainer.className = 'image-error-container';
+        errorContainer.style.cssText = `
+            padding: 20px;
+            background-color: #f8d7da;
+            border: 1px solid #dc3545;
+            border-radius: 4px;
+            text-align: center;
+            color: #721c24;
+        `;
+        
+        errorContainer.innerHTML = `
+            <p><strong>Error loading image for "${title}"</strong></p>
+            <p>Please check the image URL or try again later.</p>
+        `;
+        
+        // Replace the img element with the error container
+        imgElement.parentNode.replaceChild(errorContainer, imgElement);
+        
+        // Log the error for debugging
+        console.error(`Failed to load image for artwork: ${title}`);
     }
 
     // Initialize the gallery when the page loads
