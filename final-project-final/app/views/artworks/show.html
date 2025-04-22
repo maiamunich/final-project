@@ -49,7 +49,6 @@
                     </div>
                     <div class="artwork-actions mt-4">
                         <a id="etsy-link" href="#" class="btn btn-success etsy-link" target="_blank" style="display: none;">View on Etsy</a>
-                        <a id="edit-link" href="#" class="btn btn-primary">Edit Artwork</a>
                     </div>
                 </div>
             </div>
@@ -66,14 +65,72 @@
                 url: `/api/artworks/${artworkId}`,
                 type: 'GET',
                 dataType: 'json',
-                success: function(artwork) {
+                success: function(response) {
+                    if (!response.success || !response.data) {
+                        console.error('Invalid API response:', response);
+                        $('#artwork-details').html(`
+                            <div class="alert alert-danger">
+                                Error loading artwork details. Invalid response format.
+                            </div>
+                        `);
+                        return;
+                    }
+
+                    const artwork = response.data;
+                    
+                    // Transform Google Drive image URL if needed
+                    let imageUrl = artwork.image_url;
+                    if (imageUrl.includes('drive.google.com')) {
+                        // Extract the file ID from various Google Drive URL formats
+                        let fileId = null;
+                        
+                        // Format 1: /file/d/[ID]/view
+                        const format1 = imageUrl.match(/\/file\/d\/([^/]+)/);
+                        // Format 2: /d/[ID]/view
+                        const format2 = imageUrl.match(/\/d\/([^/]+)/);
+                        // Format 3: id=[ID]
+                        const format3 = imageUrl.match(/id=([^&]+)/);
+                        
+                        fileId = format1?.[1] || format2?.[1] || format3?.[1];
+                        
+                        if (fileId) {
+                            // Use the thumbnail API which is more reliable
+                            imageUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+                            console.log('Transformed Google Drive URL:', {
+                                from: artwork.image_url,
+                                to: imageUrl,
+                                fileId: fileId
+                            });
+                        } else {
+                            console.error('Failed to extract Google Drive file ID:', {
+                                url: imageUrl,
+                                attemptedPatterns: [
+                                    '/file/d/[ID]',
+                                    '/d/[ID]',
+                                    'id=[ID]'
+                                ]
+                            });
+                        }
+                    }
+                    
                     // Update page title
                     document.title = `${artwork.title} - Art Portfolio`;
                     
-                    // Update image
-                    $('#artwork-image').attr({
-                        'src': artwork.image_url,
-                        'alt': artwork.title
+                    // Update image with error handling
+                    const img = $('#artwork-image');
+                    img.attr({
+                        'src': imageUrl,
+                        'alt': artwork.title,
+                        'referrerpolicy': 'no-referrer'
+                    }).on('error', function() {
+                        console.error('Failed to load image:', imageUrl);
+                        $(this).replaceWith(`
+                            <div class="alert alert-danger">
+                                <p><strong>Error loading image for "${artwork.title}"</strong></p>
+                                <p>Please check the image URL or try again later.</p>
+                                <small style="font-family: monospace; word-break: break-all;">URL: ${imageUrl}</small>
+                            </div>
+                        `);
                     });
                     
                     // Update title
@@ -117,9 +174,6 @@
                     } else {
                         $('#etsy-link').hide();
                     }
-                    
-                    // Update edit link
-                    $('#edit-link').attr('href', `/artworks/${artworkId}/edit`);
                 },
                 error: function(xhr, status, error) {
                     console.error('Error fetching artwork:', error);
@@ -133,5 +187,4 @@
         });
     </script>
 </body>
-</html> 
 </html> 

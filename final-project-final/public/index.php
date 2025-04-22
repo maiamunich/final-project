@@ -100,14 +100,6 @@ if (preg_match('/^\/api\/artworks\/(\d+)$/', $uri, $matches) && $_SERVER['REQUES
     exit();
 }
 
-// Add route for UPDATING a single artwork via API (used by edit.php)
-if (preg_match('/^\/api\/artworks\/update\/(\d+)$/', $uri, $matches) && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $controller = new ArtworkController();
-    $controller->updateArtworkApi($matches[1]); // Pass ID 
-    $routeMatched = true;
-    exit();
-}
-
 // Add route for fetching artworks BY CLASS via API (used by class.php)
 if (preg_match('/^\/api\/artworks\/class\/([^\/]+)$/', $uri, $matches) && $_SERVER['REQUEST_METHOD'] === 'GET') {
     $controller = new ArtworkController();
@@ -130,6 +122,8 @@ if (preg_match('/^\/artworks\/(\d+)$/', $uri, $matches)) {
     $routeMatched = true;
     exit();
 }
+
+
 
 if (preg_match('/^\/artworks\/year\/(\d+)$/', $uri, $matches)) {
     $controller = new ArtworkController();

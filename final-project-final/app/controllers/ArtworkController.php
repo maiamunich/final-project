@@ -32,49 +32,6 @@ class ArtworkController {
         $this->view->render('artworks/create');
     }
 
-    public function update($id) {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = $this->validateArtworkData($_POST);
-            $result = $this->artwork->updateArtwork($id, $data);
-            
-            if ($result['success']) {
-                header('Location: /artworks/' . $id);
-                exit;
-            } else {
-                $this->view->render('artworks/edit', [
-                    'errors' => $result['errors'],
-                    'artwork' => array_merge(['id' => $id], $_POST)
-                ]);
-                return;
-            }
-        }
-        
-        $artwork = $this->artwork->find($id);
-        if (!$artwork) {
-            http_response_code(404);
-            $this->view->render('errors/404');
-            return;
-        }
-        
-        $this->view->render('artworks/edit', ['artwork' => $artwork]);
-    }
-
-    public function delete($id) {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $success = $this->artwork->delete($id);
-            if ($success) {
-                header('Location: /artworks');
-                exit;
-            } else {
-                http_response_code(500);
-                $this->view->render('errors/500');
-                return;
-            }
-        }
-        http_response_code(405);
-        $this->view->render('errors/405');
-    }
-
     public function getArtworksByClass($class) {
         $artworks = $this->artwork->getByClass($class);
         $this->view->render('artworks/class', [
@@ -154,25 +111,5 @@ class ArtworkController {
                 'error' => 'Failed to fetch artwork: ' . $e->getMessage()
             ]);
         }
-    }
-
-    private function validateArtworkData($data) {
-        $required = ['title', 'image_url'];
-        foreach ($required as $field) {
-            if (empty($data[$field])) {
-                return false;
-            }
-        }
-
-        return [
-            'title' => htmlspecialchars($data['title']),
-            'class_name' => !empty($data['class_name']) ? htmlspecialchars($data['class_name']) : null,
-            'image_url' => htmlspecialchars($data['image_url']),
-            'description' => !empty($data['description']) ? htmlspecialchars($data['description']) : null,
-            'medium' => !empty($data['medium']) ? htmlspecialchars($data['medium']) : null,
-            'dimensions' => !empty($data['dimensions']) ? htmlspecialchars($data['dimensions']) : null,
-            'price' => !empty($data['price']) ? (float)$data['price'] : null,
-            'etsy_url' => !empty($data['etsy_url']) ? htmlspecialchars($data['etsy_url']) : null
-        ];
     }
 } 
